@@ -196,7 +196,9 @@ export function Menu({
   const screens = useBreakpoint();
   const uiConfig = useUiConfig();
   const theme = useTheme();
-
+  useEffect(() => {
+    menu.push({name: 'Template', icon: 'fa-bar-chart', label: '模板库', url: '/template/list/'})
+  }, [menu]);
   useEffect(() => {
     function handleResize() {
       if (window.innerWidth <= 767) {

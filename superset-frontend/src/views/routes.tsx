@@ -123,6 +123,11 @@ const RowLevelSecurityList = lazy(
     ),
 );
 
+const TemplateList = lazy(
+  () =>
+    import(/* webpackChunkName: "TemplateList" */ 'src/pages/Template'),
+);
+
 type Routes = {
   path: string;
   Component: React.ComponentType;
@@ -224,6 +229,10 @@ export const routes: Routes = [
   {
     path: '/sqllab/',
     Component: SqlLab,
+  },
+ {
+    path: '/template/list/',
+    Component: TemplateList,
   },
 ];
 

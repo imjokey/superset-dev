@@ -418,7 +418,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # and doesn't work with all nested types.
     "PRESTO_EXPAND_DATA": False,
     # Exposes API endpoint to compute thumbnails
-    "THUMBNAILS": False,
+    "THUMBNAILS": True,
     "SHARE_QUERIES_VIA_KV_STORE": False,
     "TAGGING_SYSTEM": False,
     "SQLLAB_BACKEND_PERSISTENCE": True,
