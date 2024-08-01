@@ -419,8 +419,9 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     "PRESTO_EXPAND_DATA": False,
     # Exposes API endpoint to compute thumbnails
     "THUMBNAILS": True,
+    "THUMBNAILS_SQLA_LISTENERS": True,
     "SHARE_QUERIES_VIA_KV_STORE": False,
-    "TAGGING_SYSTEM": False,
+    "TAGGING_SYSTEM": True,
     "SQLLAB_BACKEND_PERSISTENCE": True,
     "LISTVIEWS_DEFAULT_CARD_VIEW": False,
     # When True, this escapes HTML (rather than rendering it) in Markdown components
@@ -635,9 +636,16 @@ THUMBNAIL_DASHBOARD_DIGEST_FUNC: None | (
 ) = None
 THUMBNAIL_CHART_DIGEST_FUNC: Callable[[Slice, ExecutorType, str], str] | None = None
 
+# THUMBNAIL_CACHE_CONFIG: CacheConfig = {
+#     "CACHE_TYPE": "NullCache",
+#     "CACHE_NO_NULL_WARNING": True,
+# }
+
 THUMBNAIL_CACHE_CONFIG: CacheConfig = {
-    "CACHE_TYPE": "NullCache",
-    "CACHE_NO_NULL_WARNING": True,
+    'CACHE_TYPE': 'RedisCache',
+    'CACHE_DEFAULT_TIMEOUT': 86400,
+    'CACHE_KEY_PREFIX': 'thumbnail_cache_',
+    'CACHE_REDIS_URL': 'redis://redis:6379/0'
 }
 
 # Time before selenium times out after trying to locate an element on the page and wait
@@ -689,8 +697,23 @@ CACHE_DEFAULT_TIMEOUT = int(timedelta(days=1).total_seconds())
 # Default cache for Superset objects
 CACHE_CONFIG: CacheConfig = {"CACHE_TYPE": "NullCache"}
 
+CACHE_CONFIG: CacheConfig  = {
+    'CACHE_TYPE': 'RedisCache',
+    'CACHE_DEFAULT_TIMEOUT': 86400,
+    'CACHE_KEY_PREFIX': 'cache_config_',
+    'CACHE_REDIS_URL': 'redis://redis:6379/0'
+}
+
+
 # Cache for datasource metadata and query results
 DATA_CACHE_CONFIG: CacheConfig = {"CACHE_TYPE": "NullCache"}
+
+DATA_CACHE_CONFIG: CacheConfig  = {
+    'CACHE_TYPE': 'RedisCache',
+    'CACHE_DEFAULT_TIMEOUT': 86400,
+    'CACHE_KEY_PREFIX': 'data_cache_',
+    'CACHE_REDIS_URL': 'redis://redis:6379/0'
+}
 
 # Cache for dashboard filter state. `CACHE_TYPE` defaults to `SupersetMetastoreCache`
 # that stores the values in the key-value table in the Superset metastore, as it's
@@ -706,6 +729,14 @@ FILTER_STATE_CACHE_CONFIG: CacheConfig = {
     "CODEC": JsonKeyValueCodec(),
 }
 
+
+FILTER_STATE_CACHE_CONFIG: CacheConfig  = {
+    'CACHE_TYPE': 'RedisCache',
+    'CACHE_DEFAULT_TIMEOUT': 86400,
+    'CACHE_KEY_PREFIX': 'superset_filter_cache_',
+    'CACHE_REDIS_URL': 'redis://redis:6379/0'
+}
+
 # Cache for explore form data state. `CACHE_TYPE` defaults to `SupersetMetastoreCache`
 # that stores the values in the key-value table in the Superset metastore, as it's
 # required for Superset to operate correctly, but can be replaced by any
@@ -718,6 +749,13 @@ EXPLORE_FORM_DATA_CACHE_CONFIG: CacheConfig = {
     # The following parameter only applies to `MetastoreCache`:
     # How should entries be serialized/deserialized?
     "CODEC": JsonKeyValueCodec(),
+}
+
+EXPLORE_FORM_DATA_CACHE_CONFIG: CacheConfig  = {
+    'CACHE_TYPE': 'RedisCache',
+    'CACHE_DEFAULT_TIMEOUT': 86400,
+    'CACHE_KEY_PREFIX': 'explore_from_data_',
+    'CACHE_REDIS_URL': 'redis://redis:6379/0'
 }
 
 # store cache keys by datasource UID (via CacheKey) for custom processing/invalidation
@@ -915,9 +953,9 @@ CELERY_BEAT_SCHEDULER_EXPIRES = timedelta(weeks=1)
 
 
 class CeleryConfig:  # pylint: disable=too-few-public-methods
-    broker_url = "sqla+sqlite:///celerydb.sqlite"
-    imports = ("superset.sql_lab", "superset.tasks.scheduler")
-    result_backend = "db+sqlite:///celery_results.sqlite"
+    broker_url = "redis://redis:6379/0"
+    imports = ("superset.sql_lab", "superset.tasks.scheduler", "superset.tasks.thumbnails")
+    result_backend = "redis://redis:6379/0"
     worker_prefetch_multiplier = 1
     task_acks_late = False
     task_annotations = {
@@ -1031,13 +1069,17 @@ SQLLAB_CTAS_SCHEMA_NAME_FUNC: None | (
 
 # If enabled, it can be used to store the results of long-running queries
 # in SQL Lab by using the "Run Async" button/feature
-RESULTS_BACKEND: BaseCache | None = None
+# RESULTS_BACKEND: BaseCache | None = None
+
+from flask_caching.backends.rediscache import RedisCache
+RESULTS_BACKEND = RedisCache(
+    host='redis', port=6379, key_prefix='superset_results')
 
 # Use PyArrow and MessagePack for async query results serialization,
 # rather than JSON. This feature requires additional testing from the
 # community before it is fully adopted, so this config option is provided
 # in order to disable should breaking issues be discovered.
-RESULTS_BACKEND_USE_MSGPACK = True
+RESULTS_BACKEND_USE_MSGPACK = False
 
 # The S3 bucket where you want to store your external hive tables created
 # from CSV files. For example, 'companyname-superset'
@@ -1402,11 +1444,11 @@ PREFERRED_DATABASES: list[str] = [
 TEST_DATABASE_CONNECTION_TIMEOUT = timedelta(seconds=30)
 
 # Enable/disable CSP warning
-CONTENT_SECURITY_POLICY_WARNING = True
+CONTENT_SECURITY_POLICY_WARNING = False
 
 # Do you want Talisman enabled?
-TALISMAN_ENABLED = utils.cast_to_boolean(os.environ.get("TALISMAN_ENABLED", True))
-
+TALISMAN_ENABLED = utils.cast_to_boolean(os.environ.get("TALISMAN_ENABLED", False))
+TALISMAN_ENABLED = False
 # If you want Talisman, how do you want it configured??
 TALISMAN_CONFIG = {
     "content_security_policy": {
