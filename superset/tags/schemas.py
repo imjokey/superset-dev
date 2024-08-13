@@ -73,6 +73,8 @@ class TagPostBulkSchema(Schema):
 class TagPostSchema(TagObjectSchema):
     pass
 
+class SysTagPostSchema(TagObjectSchema):
+    type = fields.String()
 
 class TagPutSchema(TagObjectSchema):
     pass

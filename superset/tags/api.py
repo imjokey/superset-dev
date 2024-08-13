@@ -25,6 +25,8 @@ from marshmallow import ValidationError
 from superset.commands.tag.create import (
     CreateCustomTagCommand,
     CreateCustomTagWithRelationshipsCommand,
+    CreateSysTagWithRelationshipsCommand,
+
 )
 from superset.commands.tag.delete import DeleteTaggedObjectCommand, DeleteTagsCommand
 from superset.commands.tag.exceptions import (
@@ -49,6 +51,7 @@ from superset.tags.schemas import (
     TagGetResponseSchema,
     TagPostBulkSchema,
     TagPostSchema,
+    SysTagPostSchema,
     TagPutSchema,
 )
 from superset.views.base_api import (
@@ -69,6 +72,7 @@ class TagRestApi(BaseSupersetModelRestApi):
         "get_objects",
         "get_all_objects",
         "add_objects",
+        "add_sys_objects",
         "delete_object",
         "add_favorite",
         "remove_favorite",
@@ -123,6 +127,7 @@ class TagRestApi(BaseSupersetModelRestApi):
     search_filters = {"type": [UserCreatedTagTypeFilter]}
 
     add_model_schema = TagPostSchema()
+    add_sys_model_schema = SysTagPostSchema()
     edit_model_schema = TagPutSchema()
     tag_get_response_schema = TagGetResponseSchema()
     object_entity_response_schema = TaggedObjectEntityResponseSchema()
@@ -198,6 +203,61 @@ class TagRestApi(BaseSupersetModelRestApi):
             return self.response(201)
         except TagInvalidError as ex:
             return self.response_422(message=ex.normalized_messages())
+
+
+    @expose("/sys_tag", methods=("POST",))
+    @protect()
+    @safe
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}.add_sys_objects",
+        log_to_statsd=False,
+    )
+    def add_sys_objects(self) -> Response:
+        """Creates a new Tags and tag items
+        ---
+        post:
+          description: >-
+            Create a new Tag
+          requestBody:
+            description: Tag schema
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/{{self.__class__.__name__}}.post'
+          responses:
+            201:
+              description: Tag added
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      result:
+                        $ref: '#/components/schemas/{{self.__class__.__name__}}.post'
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            422:
+              $ref: '#/components/responses/422'
+            500:
+              $ref: '#/components/responses/500'
+        """
+        try:
+            item = self.add_sys_model_schema.load(request.json)
+        except ValidationError as error:
+            return self.response_400(message=error.messages)
+        try:
+            CreateSysTagWithRelationshipsCommand(item).run()
+            return self.response(201)
+        except TagInvalidError as ex:
+            return self.response_422(message=ex.normalized_messages())
+
+
 
     @expose("/bulk_create", methods=("POST",))
     @protect()

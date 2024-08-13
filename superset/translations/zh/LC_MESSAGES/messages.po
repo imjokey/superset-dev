@@ -19206,3 +19206,6 @@ msgstr "年"
 msgid "zoom area"
 msgstr ""
 
+msgid "On dashboards"
+msgstr "存在仪表盘"
+
