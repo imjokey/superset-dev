@@ -777,9 +777,7 @@ function DashboardList(props: DashboardListProps) {
                 }
                 renderCard={renderCard}
                 defaultViewMode={
-                  isFeatureEnabled(FeatureFlag.ListviewsDefaultCardView)
-                    ? 'card'
-                    : 'table'
+                  'page'
                 }
                 enableBulkTag
                 bulkTagResourceName="dashboard"

@@ -6,7 +6,7 @@ import {
     PicRightOutlined, BarsOutlined, UsergroupAddOutlined, UserOutlined, UserSwitchOutlined, SortDescendingOutlined
 } from '@ant-design/icons';
 
-const DashboardContent = () => {
+const NewDashboardContent = ({length,divElement}) => {
     const AiModalContent = styled.div`
         margin-top: -16px;
         background: #fff;
@@ -299,56 +299,13 @@ const DashboardContent = () => {
         <div className='listBox'>
             <div className='titleBox'>
                 <div className='title'>01.财务主题</div>
-                <div>总数：12</div>
+                <div>总数：{length}</div>
             </div>
-            <div className={showStyle == '1' ? 'listContent listStyle' : 'listContent listStyles'}>
-                {
-                    showStyle == '3' ? <Table dataSource={dataSource} columns={columns} pagination={false} /> :
-                        Array(10).fill(null).map((item, index) => (
-                            <div key={index} className='listItem'>
-                                <div className='listItemImg'>
-                                    <img src="http://123.56.236.25:9001/designer/static/image/DF3FD68B7D2748D49AC00B8DB9EE5183.png" />
-                                </div>
-                                <div className='listItemInfo'>
-                                    <div className='title'>{index + 1}.财务总览</div>
-                                    <div className='user'>
-                                        <div className='name'>星光</div>
-                                        <div className='time'>2020-10-27 21:53:24</div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
 
-                }
-                <div className='listContentLine'></div>
-            </div>
-            <div className='titleBoxChildren'>
-                <div className='title'>01.财务主题</div>
-                <div>总数：12</div>
-            </div>
-            <div className={showStyle == '1' ? 'listContentChildren listStyle' : 'listContentChildren listStyles'}>
-                {
-                    showStyle == '3' ? <Table dataSource={dataSource} columns={columns} pagination={false} /> :
-                        Array(10).fill(null).map((item, index) => (
-                            <div key={index} className='listItem'>
-                                <div className='listItemImg'>
-                                    <img src="http://123.56.236.25:9001/designer/static/image/DF3FD68B7D2748D49AC00B8DB9EE5183.png" />
-                                </div>
-                                <div className='listItemInfo'>
-                                    <div className='title'>{index + 1}.财务总览</div>
-                                    <div className='user'>
-                                        <div className='name'>星光</div>
-                                        <div className='time'>2020-10-27 21:53:24</div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
+            {divElement}
 
-                }
-                <div className='listContentLine'></div>
-            </div>
         </div>
     </AiModalContent>
 }
 
-export default DashboardContent;
+export default NewDashboardContent;

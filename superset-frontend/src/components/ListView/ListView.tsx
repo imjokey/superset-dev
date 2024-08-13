@@ -29,6 +29,7 @@ import BulkTagModal from 'src/features/tags/BulkTagModal';
 import CardCollection from './CardCollection';
 import FilterControls from './Filters';
 import { CardSortSelect } from './CardSortSelect';
+import NewDashboardContent from 'src/pages/Template/components/content/newIndex'
 import {
   FetchDataConfig,
   Filters,
@@ -38,6 +39,7 @@ import {
 } from './types';
 import { ListViewError, useListViewState } from './utils';
 import { EmptyStateBig, EmptyStateProps } from '../EmptyState';
+import { useLocation } from 'react-router-dom';
 
 const ListViewStyles = styled.div`
   text-align: center;
@@ -148,7 +150,8 @@ const ViewModeContainer = styled.div`
     padding: ${({ theme }) => theme.gridUnit}px;
     padding-bottom: ${({ theme }) => theme.gridUnit * 0.5}px;
 
-    &:first-of-type {
+    &:nth-child(2) {
+      margin-left: ${({ theme }) => theme.gridUnit * 2}px;
       margin-right: ${({ theme }) => theme.gridUnit * 2}px;
     }
   }
@@ -177,6 +180,17 @@ const ViewModeToggle = ({
   setMode: (mode: 'table' | 'card') => void;
 }) => (
   <ViewModeContainer>
+    {location.pathname === '/dashboard/list/' &&<div
+      role="button"
+      tabIndex={0}
+      onClick={e => {
+        e.currentTarget.blur();
+        setMode('page');
+      }}
+      className={cx('toggle-button', { active: mode === 'page' })}
+    >
+      <Icons.Cards />
+    </div>}
     <div
       role="button"
       tabIndex={0}
@@ -317,6 +331,8 @@ function ListView<T extends object = any>({
   const cardViewEnabled = Boolean(renderCard);
   const [showBulkTagModal, setShowBulkTagModal] = useState<boolean>(false);
 
+  const location = useLocation();
+
   useEffect(() => {
     // discard selections if bulk select is disabled
     if (!bulkSelectEnabled) toggleAllRowsSelected(false);
@@ -444,6 +460,14 @@ function ListView<T extends object = any>({
               columnsForWrapText={columnsForWrapText}
             />
           )}
+          {location.pathname === '/dashboard/list/' && viewMode === 'page' && <div style={{marginTop: "20px"}}><NewDashboardContent length={rows.length} divElement={<CardCollection
+              bulkSelectEnabled={bulkSelectEnabled}
+              prepareRow={prepareRow}
+              renderCard={renderCard}
+              rows={rows}
+              loading={loading}
+              showThumbnails={showThumbnails}
+            />} /></div>}
           {!loading && rows.length === 0 && (
             <EmptyWrapper className={viewMode}>
               {query.filters ? (
