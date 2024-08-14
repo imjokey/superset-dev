@@ -37,3 +37,24 @@ class UserCreatedTagTypeFilter(BaseFilter):  # pylint: disable=too-few-public-me
         if value is False:
             return query.filter(Tag.type != TagType.custom)
         return query
+
+
+
+class UserCreatedSysTagTypeFilter(BaseFilter):  # pylint: disable=too-few-public-methods
+    """
+    Filter for tag type.
+    When set to True, only user-created tags are returned.
+    When set to False, only system tags are returned.
+    """
+
+    name = _("Is sys tag")
+    arg_name = "sys_tag"
+
+    def apply(self, query: Query, value: bool) -> Query:
+        if value:
+            return query.filter(Tag.type == TagType.type, ~Tag.name.contains('type:'))
+        if value is False:
+            return query.filter(Tag.type != TagType.type, ~Tag.name.contains('type:'))
+        return query
+
+
