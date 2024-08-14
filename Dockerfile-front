@@ -1,0 +1,10 @@
+FROM node:18
+
+
+WORKDIR /app/superset-frontend
+COPY ./superset-frontend ./
+
+RUN npm ci
+
+
+CMD ["/bin/bash", "-c", "npm run dev-server -- --port=8088 --env=--superset=http://49.51.178.63:8000"]

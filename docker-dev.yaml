@@ -87,8 +87,6 @@ services:
     - 8088:8088
     env_file: docker/.env
     depends_on: *superset-depends-on
-    environment:
-      SCARF_ANALYTICS: false
     volumes: *superset-volumes
 
   superset-worker:
