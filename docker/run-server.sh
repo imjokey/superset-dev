@@ -18,7 +18,10 @@
 # under the License.
 #
 HYPHEN_SYMBOL='-'
-# pybabel compile  -d superset/translations -l zh
+
+# trans 
+pybabel compile  -d superset/translations -l zh
+
 gunicorn \
     --bind "${SUPERSET_BIND_ADDRESS:-0.0.0.0}:${SUPERSET_PORT:-8088}" \
     --access-logfile "${ACCESS_LOG_FILE:-$HYPHEN_SYMBOL}" \
@@ -33,3 +36,4 @@ gunicorn \
     --limit-request-line ${SERVER_LIMIT_REQUEST_LINE:-0} \
     --limit-request-field_size ${SERVER_LIMIT_REQUEST_FIELD_SIZE:-0} \
     "${FLASK_APP}"
+

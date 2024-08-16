@@ -421,8 +421,8 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # and doesn't work with all nested types.
     "PRESTO_EXPAND_DATA": False,
     # Exposes API endpoint to compute thumbnails
-    "THUMBNAILS": True,
-    "THUMBNAILS_SQLA_LISTENERS": True,
+    "THUMBNAILS": False,
+    "THUMBNAILS_SQLA_LISTENERS": False,
     "SHARE_QUERIES_VIA_KV_STORE": False,
     "TAGGING_SYSTEM": True,
     "SQLLAB_BACKEND_PERSISTENCE": True,
@@ -973,6 +973,7 @@ class CeleryConfig:  # pylint: disable=too-few-public-methods
     imports = ("superset.sql_lab", "superset.tasks.scheduler", "superset.tasks.thumbnails")
     result_backend = "redis://redis:6379/0"
     worker_prefetch_multiplier = 1
+    concurrency = 1
     task_acks_late = False
     task_annotations = {
         "sql_lab.get_sql_results": {

@@ -53,7 +53,7 @@ services:
     env_file: docker/.env
     image: *superset-image
     container_name: superset_dev_app
-    command: ["/app/docker/docker-bootstrap.sh", "app"]
+    command: ["/app/docker/docker-bootstrap.sh", "app-gunicorn"]
     restart: unless-stopped
     ports:
       - 8000:8000
