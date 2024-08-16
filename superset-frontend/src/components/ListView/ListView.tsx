@@ -460,14 +460,20 @@ function ListView<T extends object = any>({
               columnsForWrapText={columnsForWrapText}
             />
           )}
-          {location.pathname === '/dashboard/list/' && viewMode === 'page' && <div style={{marginTop: "20px"}}><NewDashboardContent length={rows.length} divElement={<CardCollection
-              bulkSelectEnabled={bulkSelectEnabled}
-              prepareRow={prepareRow}
-              renderCard={renderCard}
-              rows={rows}
-              loading={loading}
-              showThumbnails={showThumbnails}
-            />} /></div>}
+          {location.pathname === '/dashboard/list/' && viewMode === 'page' && (
+            <div style={{ marginTop: '20px' }}>
+              <NewDashboardContent length={rows.length}>
+                <CardCollection
+                  bulkSelectEnabled={bulkSelectEnabled}
+                  prepareRow={prepareRow}
+                  renderCard={renderCard}
+                  rows={rows}
+                  loading={loading}
+                  showThumbnails={showThumbnails}
+                />
+              </NewDashboardContent>
+            </div>
+          )}
           {!loading && rows.length === 0 && (
             <EmptyWrapper className={viewMode}>
               {query.filters ? (
