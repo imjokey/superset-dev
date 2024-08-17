@@ -88,6 +88,9 @@ services:
     env_file: docker/.env
     depends_on: *superset-depends-on
     volumes: *superset-volumes
+    environment:
+     PROXY_ADDRESS : "${PROXY_ADDRESS}"
+     SUPERSET_PORT : "${SUPERSET_PORT}"
 
   superset-worker:
     image: *superset-image
