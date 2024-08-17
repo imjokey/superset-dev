@@ -1,4 +1,4 @@
-import { useState, FC } from 'react';
+import { useState, FC, useMemo, useEffect } from 'react';
 import { styled, t } from '@superset-ui/core';
 import { Radio, Input, Table } from 'antd';
 import {
@@ -17,10 +17,13 @@ import {
   UserSwitchOutlined,
   SortDescendingOutlined,
 } from '@ant-design/icons';
+import { loadTags } from 'src/components/Tags/utils';
 
 interface NewDashboardContentProps {
   length: number;
   children: any;
+  updateFilterValue: any;
+  internalFilters: any;
 }
 
 const AiModalContent = styled.div`
@@ -48,6 +51,7 @@ const AiModalContent = styled.div`
     .sortBox {
       display: flex;
       align-items: center;
+      height: 50px;
       div {
         margin: 0 5px;
         cursor: pointer;
@@ -244,7 +248,7 @@ const AiModalContent = styled.div`
 `;
 
 const NewDashboardContent: FC<NewDashboardContentProps> = props => {
-  const { length, children } = props;
+  const { length, children, updateFilterValue, internalFilters } = props;
 
   // eslint-disable-next-line theme-colors/no-literal-colors
 
@@ -253,20 +257,24 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
     { key: '2', title: '财务总览', name: '星光', time: '2020-10-27 22:27:23' },
   ];
 
+  const [tagOptions, setTagOptions] = useState<any>([]);
+
   const columns = [
     { title: '报表名称', dataIndex: 'title', key: 'title' },
     { title: '拥有着', dataIndex: 'name', key: 'name' },
     { title: '最后编辑时间', dataIndex: 'time', key: 'time' },
   ];
 
-  const [type, setType] = useState('1');
+  const [type, setType] = useState<any>();
   const onChange = (e: any) => {
-    setType(e.target.value);
+    const v = e.target.value;
+    setType(v);
+    updateFilterValue(
+      2,
+      tagOptions.find((item: any) => item.value === Number(v)),
+    );
   };
-  const [maintype, setMaintype] = useState('1');
-  const onMaintypeChange = (e: any) => {
-    setMaintype(e.target.value);
-  };
+
   const [modaltype, setModaltype] = useState('1');
   const onChanges = (e: any) => {
     setModaltype(e.target.value);
@@ -281,6 +289,25 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
     setSort(e);
   };
 
+  const fetchAndFormatSelects = useMemo(
+    () => async (inputValue: string, page: number, pageSize: number) => {
+      const selectValues = await loadTags(inputValue, page, pageSize);
+      console.log(selectValues)
+      setTagOptions(selectValues.data);
+      if (internalFilters) {
+        setType(internalFilters[2]?.value?.value);
+      } else {
+        setType(selectValues.data[0].value);
+        updateFilterValue(2, selectValues.data[0]);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    fetchAndFormatSelects('', 0, 100);
+  }, []);
+
   return (
     <AiModalContent>
       <div className="headers">
@@ -290,22 +317,24 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
           optionType="button"
           buttonStyle="solid"
         >
-          <Radio.Button value="1">
-            <DesktopOutlined style={{ marginRight: 6 }} />
-            PC端
-          </Radio.Button>
-          <Radio.Button value="2">
-            <MobileOutlined style={{ marginRight: 6 }} />
-            移动端
-          </Radio.Button>
-          <Radio.Button value="3">
-            <FundProjectionScreenOutlined style={{ marginRight: 6 }} />
-            大屏
-          </Radio.Button>
-          <Radio.Button value="4">
-            <BarChartOutlined style={{ marginRight: 6 }} />
-            报表
-          </Radio.Button>
+          {tagOptions.map((item: any) => (
+            <Radio.Button value={item.value}>
+              {item.value === 5 && (
+                <DesktopOutlined style={{ marginRight: 6 }} />
+              )}
+              {item.value === 8 && (
+                <MobileOutlined style={{ marginRight: 6 }} />
+              )}
+              {item.value === 9 && (
+                <FundProjectionScreenOutlined style={{ marginRight: 6 }} />
+              )}
+              {item.value === 7 && (
+                <BarChartOutlined style={{ marginRight: 6 }} />
+              )}
+
+              {item.label}
+            </Radio.Button>
+          ))}
         </Radio.Group>
         <div className="rightSearch">
           <div className="input">
@@ -346,26 +375,7 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
         </div>
       </div>
       <div className="typeBox">
-        <Radio.Group
-          value={maintype}
-          onChange={onMaintypeChange}
-          optionType="button"
-          buttonStyle="solid"
-          size="large"
-        >
-          <Radio.Button value="1">
-            <UsergroupAddOutlined style={{ marginRight: 6 }} />
-            共享报告
-          </Radio.Button>
-          <Radio.Button value="2">
-            <UserOutlined style={{ marginRight: 6 }} />
-            私有报告
-          </Radio.Button>
-          <Radio.Button value="3">
-            <UserSwitchOutlined style={{ marginRight: 6 }} />
-            匿名报告
-          </Radio.Button>
-        </Radio.Group>
+        <div></div>
         <div className="sortBox">
           <div
             className={sort == '1' ? 'active' : ''}
@@ -407,7 +417,7 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
       </div>
       <div className="listBox">
         <div className="titleBox">
-          <div className="title">01.财务主题</div>
+          <div className="title" />
           <div>总数：{length}</div>
         </div>
 

@@ -305,7 +305,7 @@ function DashboardList(props: DashboardListProps) {
                 <CertifiedBadge
                   certifiedBy={certifiedBy}
                   details={certificationDetails}
-                />{' '}
+                />
               </>
             )}
             {dashboardTitle}

@@ -462,7 +462,11 @@ function ListView<T extends object = any>({
           )}
           {location.pathname === '/dashboard/list/' && viewMode === 'page' && (
             <div style={{ marginTop: '20px' }}>
-              <NewDashboardContent length={rows.length}>
+              <NewDashboardContent
+                length={rows.length}
+                updateFilterValue={applyFilterValue}
+                internalFilters={internalFilters}
+              >
                 <CardCollection
                   bulkSelectEnabled={bulkSelectEnabled}
                   prepareRow={prepareRow}
