@@ -265,14 +265,17 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
     { title: '最后编辑时间', dataIndex: 'time', key: 'time' },
   ];
 
-  const [type, setType] = useState<any>();
+  const [type, setType] = useState<any>(0);
   const onChange = (e: any) => {
     const v = e.target.value;
-    setType(v);
-    updateFilterValue(
-      2,
-      tagOptions.find((item: any) => item.value === Number(v)),
-    );
+    if (v === 0) {
+      setType(0);
+      updateFilterValue(2, undefined);
+    } else {
+      setType(v);
+      const { label } = tagOptions.find((item: any) => item.value === Number(v))
+      updateFilterValue( 2, { label,value: label } );
+    }
   };
 
   const [modaltype, setModaltype] = useState('1');
@@ -292,13 +295,9 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
   const fetchAndFormatSelects = useMemo(
     () => async (inputValue: string, page: number, pageSize: number) => {
       const selectValues = await loadTags(inputValue, page, pageSize);
-      console.log(selectValues)
       setTagOptions(selectValues.data);
       if (internalFilters) {
         setType(internalFilters[2]?.value?.value);
-      } else {
-        setType(selectValues.data[0].value);
-        updateFilterValue(2, selectValues.data[0]);
       }
     },
     [],
@@ -317,6 +316,7 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
           optionType="button"
           buttonStyle="solid"
         >
+          <Radio.Button value={0}>全部</Radio.Button>
           {tagOptions.map((item: any) => (
             <Radio.Button value={item.value}>
               {item.value === 5 && (

@@ -74,7 +74,7 @@ export const loadTags = async (
     return errorText;
   };
 
-  return cachedSupersetGet({
+  return SupersetClient.get({
     endpoint: `/api/v1/tag/?q=${query}`,
   })
     .then(response => {
