@@ -42,7 +42,7 @@ from superset.constants import MODEL_API_RW_METHOD_PERMISSION_MAP, RouteMethod
 from superset.daos.tag import TagDAO
 from superset.exceptions import MissingUserContextException
 from superset.extensions import event_logger
-from superset.tags.filters import UserCreatedTagTypeFilter, UserCreatedSysTagTypeFilter
+from superset.tags.filters import UserCreatedTagTypeFilter, UserCreatedSysTagTypeFilter, UserCreatedSysTagParentFilter
 from superset.tags.models import ObjectType, Tag
 from superset.tags.schemas import (
     delete_tags_schema,
@@ -124,7 +124,7 @@ class TagRestApi(BaseSupersetModelRestApi):
     }
     allowed_rel_fields = {"created_by", "changed_by"}
 
-    search_filters = {"type": [UserCreatedTagTypeFilter, UserCreatedSysTagTypeFilter]}
+    search_filters = {"type": [UserCreatedTagTypeFilter, UserCreatedSysTagTypeFilter], "parent_tag": UserCreatedSysTagParentFilter}
 
     add_model_schema = TagPostSchema()
     add_sys_model_schema = SysTagPostSchema()

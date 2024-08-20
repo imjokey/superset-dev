@@ -145,6 +145,23 @@ class TagDAO(BaseDAO[Tag]):
             tag = get_tag(name, db.session, type_)
         return tag
 
+
+    @staticmethod
+    def get_sys_tag_by_name(name: str, parent_id: int,  type_: TagType = TagType.custom) -> Tag:
+        """
+        returns a tag if one exists by that name, none otherwise.
+        important!: Creates a tag by that name if the tag is not found.
+        """
+        tag = (
+            db.session.query(Tag)
+            .filter(Tag.name == name, Tag.type == type_.name, Tag.parent_id == parent_id)
+            .first()
+        )
+        if not tag:
+            tag = get_sys_tag(name, parent_id, db.session, type_)
+        return tag
+
+
     @staticmethod
     def find_by_name(name: str) -> Tag:
         """

@@ -103,7 +103,7 @@ class Tag(Model, AuditMixinNullable):
     users_favorited = relationship(
         security_manager.user_model, secondary=user_favorite_tag_table
     )
-
+    parent_id = Column(Integer, nullable=True)
 
 class TaggedObject(Model, AuditMixinNullable):
 
@@ -138,6 +138,18 @@ def get_tag(
     tag = session.query(Tag).filter_by(name=tag_name, type=type_).one_or_none()
     if tag is None:
         tag = Tag(name=escape(tag_name), type=type_)
+        session.add(tag)
+        session.commit()
+    return tag
+
+
+def get_sys_tag(
+    name: str, parent_id: int, session: orm.Session, type_: TagType  # pylint: disable=disallowed-name
+) -> Tag:
+    tag_name = name.strip()
+    tag = session.query(Tag).filter_by(name=tag_name, parent_id=parent_id, type=type_).one_or_none()
+    if tag is None:
+        tag = Tag(name=escape(tag_name), parent_id=parent_id, type=type_)
         session.add(tag)
         session.commit()
     return tag
