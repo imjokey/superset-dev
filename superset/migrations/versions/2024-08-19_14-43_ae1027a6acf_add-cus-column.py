@@ -9,7 +9,7 @@ from alembic import op
 import sqlalchemy as sa
 
 def upgrade():
-    op.add_column('tag', sa.Column('parent_id', sa.String(length=255), nullable=True))
+    op.add_column('tag', sa.Column('parent_id', sa.Integer(), nullable=True))
 
 def downgrade():
     op.drop_column('tag', 'parent_id')

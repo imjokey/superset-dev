@@ -73,6 +73,7 @@ class TagRestApi(BaseSupersetModelRestApi):
         "get_all_objects",
         "add_objects",
         "add_sys_objects",
+        "sys_tag_put",
         "delete_object",
         "add_favorite",
         "remove_favorite",
@@ -90,6 +91,7 @@ class TagRestApi(BaseSupersetModelRestApi):
         "id",
         "name",
         "type",
+        "parent_id",
         "description",
         "changed_by.first_name",
         "changed_by.last_name",
@@ -105,6 +107,7 @@ class TagRestApi(BaseSupersetModelRestApi):
         "id",
         "name",
         "type",
+        "parent_id",
         "description",
         "changed_by.first_name",
         "changed_by.last_name",
@@ -124,7 +127,7 @@ class TagRestApi(BaseSupersetModelRestApi):
     }
     allowed_rel_fields = {"created_by", "changed_by"}
 
-    search_filters = {"type": [UserCreatedTagTypeFilter, UserCreatedSysTagTypeFilter], "parent_tag": UserCreatedSysTagParentFilter}
+    search_filters = {"type": [UserCreatedTagTypeFilter, UserCreatedSysTagTypeFilter, UserCreatedSysTagParentFilter]}
 
     add_model_schema = TagPostSchema()
     add_sys_model_schema = SysTagPostSchema()
@@ -256,6 +259,71 @@ class TagRestApi(BaseSupersetModelRestApi):
             return self.response(201)
         except TagInvalidError as ex:
             return self.response_422(message=ex.normalized_messages())
+
+    @expose("/sys_tag/<pk>", methods=("PUT",))
+    @protect()
+    @safe
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}.sys_tag_put",
+        log_to_statsd=False,
+    )
+    def sys_tag_put(self, pk: int) -> Response:
+        """Changes a Tag
+        ---
+        put:
+          description: >-
+            Changes a Tag.
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+          requestBody:
+            description: Chart schema
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/{{self.__class__.__name__}}.put'
+          responses:
+            200:
+              description: Tag changed
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      result:
+                        $ref: '#/components/schemas/{{self.__class__.__name__}}.put'
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            403:
+              $ref: '#/components/responses/403'
+            404:
+              $ref: '#/components/responses/404'
+            422:
+              $ref: '#/components/responses/422'
+            500:
+              $ref: '#/components/responses/500'
+        """
+        try:
+            item = self.edit_model_schema.load(request.json)
+        # This validates custom Schema with custom validations
+        except ValidationError as error:
+            return self.response_400(message=error.messages)
+        item = request.json
+        try:
+            changed_model = UpdateTagCommand(pk, item).run()
+            response = self.response(200, id=changed_model.id, result=item)
+        except TagUpdateFailedError as ex:
+            response = self.response_422(message=str(ex))
+
+        return response
 
 
 
@@ -816,3 +884,4 @@ class TagRestApi(BaseSupersetModelRestApi):
             return self.response_404()
         except MissingUserContextException as ex:
             return self.response_422(message=str(ex))
+

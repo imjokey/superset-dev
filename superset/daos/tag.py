@@ -32,6 +32,7 @@ from superset.models.slice import Slice
 from superset.models.sql_lab import SavedQuery
 from superset.tags.models import (
     get_tag,
+    get_sys_tag,
     ObjectType,
     Tag,
     TaggedObject,
@@ -443,3 +444,4 @@ class TagDAO(BaseDAO[Tag]):
                 )
 
         db.session.add_all(tagged_objects)
+

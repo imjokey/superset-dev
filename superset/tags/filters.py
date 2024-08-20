@@ -65,12 +65,13 @@ class UserCreatedSysTagParentFilter(BaseFilter):  # pylint: disable=too-few-publ
     """
 
     name = _("Is parent tag")
-    arg_name = "parent_tag"
+    arg_name = "parent_id"
 
-    def apply(self, query: Query, value: str) -> Query:
+    def apply(self, query: Query, value: any) -> Query:
         if value:
             return query.filter(Tag.type == TagType.type, ~Tag.name.contains('type:'), Tag.parent_id == int(value))
         else:
-            return query.filter(Tag.type == TagType.type, ~Tag.name.contains('type:'))
+            return query.filter(Tag.type == TagType.type, ~Tag.name.contains('type:'), Tag.parent_id == None)
         return query
+
 

@@ -43,6 +43,7 @@ class TagGetResponseSchema(Schema):
     id = fields.Int()
     name = fields.String()
     type = fields.String()
+    parent_id = fields.Int()
 
 
 class TaggedObjectEntityResponseSchema(Schema):
@@ -75,6 +76,9 @@ class TagPostSchema(TagObjectSchema):
 
 class SysTagPostSchema(TagObjectSchema):
     type = fields.String()
+    parent_id = fields.Int()
 
 class TagPutSchema(TagObjectSchema):
-    pass
+    type = fields.String()
+    parent_id = fields.Int()
+

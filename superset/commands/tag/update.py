@@ -43,6 +43,7 @@ class UpdateTagCommand(UpdateMixin, BaseCommand):
                 objects_to_tag=self._properties.get("objects_to_tag", []),
                 tag=self._model,
             )
+            self._model.parent_id = self._properties.get("parent_id", None)
             self._model.description = self._properties.get("description")
 
             db.session.add(self._model)
@@ -69,3 +70,4 @@ class UpdateTagCommand(UpdateMixin, BaseCommand):
 
         if exceptions:
             raise TagInvalidError(exceptions=exceptions)
+

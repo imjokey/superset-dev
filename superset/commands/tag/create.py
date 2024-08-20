@@ -133,7 +133,7 @@ class CreateSysTagWithRelationshipsCommand(CreateMixin, BaseCommand):
 
         try:
             tag_name = self._properties["name"]
-            parent_id = int(self._properties["parent_tag"])
+            parent_id = int(self._properties["parent_id"]) if self._properties.get("parent_id", None) else None
             tag = TagDAO.get_sys_tag_by_name(tag_name.strip(), parent_id, TagType.type)
             TagDAO.create_tag_relationship(
                 objects_to_tag=self._properties.get("objects_to_tag", []),
@@ -178,3 +178,4 @@ class CreateSysTagWithRelationshipsCommand(CreateMixin, BaseCommand):
 
         if exceptions:
             raise TagInvalidError(exceptions=exceptions)
+

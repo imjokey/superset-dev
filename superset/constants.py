@@ -155,6 +155,7 @@ MODEL_API_RW_METHOD_PERMISSION_MAP = {
     "get_all_objects": "read",
     "add_objects": "write",
     "add_sys_objects": "write",
+    "sys_tag_put": "write",
     "delete_object": "write",
     "copy_dash": "write",
     "get_connection": "write",
@@ -227,3 +228,4 @@ class CacheRegion(StrEnum):
     DEFAULT = "default"
     DATA = "data"
     THUMBNAIL = "thumbnail"
+
