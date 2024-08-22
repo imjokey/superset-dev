@@ -63,6 +63,13 @@ class DashboardModelView(
     def list(self) -> FlaskResponse:
         return super().render_app_template()
 
+
+    @has_access
+    @expose("/templates/")
+    def list(self) -> FlaskResponse:
+        return super().render_app_template()
+
+
     @action("mulexport", __("Export"), __("Export dashboards?"), "fa-database")
     def mulexport(
         self,

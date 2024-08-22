@@ -137,7 +137,7 @@ type Routes = {
 
 export const routes: Routes = [
   {
-    path: '/superset/welcome/',
+    path: '/xingguang/welcome/',
     Component: Home,
   },
   {
@@ -238,11 +238,11 @@ export const routes: Routes = [
 
 if (isFeatureEnabled(FeatureFlag.TaggingSystem)) {
   routes.push({
-    path: '/superset/all_entities/',
+    path: '/xingguang/all_entities/',
     Component: AllEntities,
   });
   routes.push({
-    path: '/superset/tags/',
+    path: '/xingguang/tags/',
     Component: Tags,
   });
 }

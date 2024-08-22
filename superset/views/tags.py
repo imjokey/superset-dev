@@ -47,12 +47,20 @@ def process_template(content: str) -> str:
 
 
 class TagModelView(SupersetModelView):
-    route_base = "/superset/tags"
+    route_base = "/xingguang/tags"
     datamodel = SQLAInterface(Tag)
     class_permission_name = "Tags"
 
     @has_access
     @expose("/")
+    def list(self) -> FlaskResponse:
+        if not is_feature_enabled("TAGGING_SYSTEM"):
+            return super().list()
+
+        return super().render_app_template()
+
+    @has_access
+    @expose("/sys_tag/")
     def list(self) -> FlaskResponse:
         if not is_feature_enabled("TAGGING_SYSTEM"):
             return super().list()
