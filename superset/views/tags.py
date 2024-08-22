@@ -52,9 +52,6 @@ class TagModelView(SupersetModelView):
     datamodel = SQLAInterface(Tag)
     class_permission_name = "Tags"
 
-
-    method_permission_name = MODEL_VIEW_RW_METHOD_PERMISSION_MAP
-
     @has_access
     @expose("/")
     def list(self) -> FlaskResponse:
@@ -63,14 +60,19 @@ class TagModelView(SupersetModelView):
 
         return super().render_app_template()
 
+
+class TagTemplateModelView(SupersetModelView):
+    route_base = "/superset/sys_tag"
+    datamodel = SQLAInterface(Tag)
+    class_permission_name = "Tags"
+
     @has_access
-    @expose("/sys_tag/")
-    def sys_tag_list(self) -> FlaskResponse:
+    @expose("/")
+    def list(self) -> FlaskResponse:
         if not is_feature_enabled("TAGGING_SYSTEM"):
             return super().list()
 
         return super().render_app_template()
-
 
 class TagView(BaseSupersetView):
     @staticmethod
@@ -98,3 +100,4 @@ class TagView(BaseSupersetView):
             for obj in query
         ]
         return json_success(json.dumps(results, default=utils.core.json_int_dttm_ser))
+

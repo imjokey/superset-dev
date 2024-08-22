@@ -189,7 +189,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             TabStateView,
         )
         from superset.views.sqllab import SqllabView
-        from superset.views.tags import TagModelView, TagView
+        from superset.views.tags import TagModelView, TagTemplateModelView, TagView
         from superset.views.users.api import CurrentUserRestApi
 
         #
@@ -359,6 +359,16 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category="Manage",
             menu_cond=lambda: feature_flag_manager.is_feature_enabled("TAGGING_SYSTEM"),
         )
+        appbuilder.add_view(
+            TagTemplateModelView,
+            "SysTags",
+            label=__("模版标签"),
+            icon="",
+            category_icon="",
+            category="Manage",
+            menu_cond=lambda: feature_flag_manager.is_feature_enabled("TAGGING_SYSTEM"),
+        )
+
         appbuilder.add_api(LogRestApi)
         appbuilder.add_view(
             LogModelView,
@@ -672,3 +682,4 @@ class SupersetIndexView(IndexView):
     @expose("/")
     def index(self) -> FlaskResponse:
         return redirect("/superset/welcome/")
+
