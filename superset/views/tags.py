@@ -30,6 +30,7 @@ from superset.jinja_context import ExtraCache
 from superset.superset_typing import FlaskResponse
 from superset.tags.models import Tag
 from superset.views.base import SupersetModelView
+from superset.constants import MODEL_VIEW_RW_METHOD_PERMISSION_MAP, RouteMethod
 
 from .base import BaseSupersetView, json_success
 
@@ -47,9 +48,12 @@ def process_template(content: str) -> str:
 
 
 class TagModelView(SupersetModelView):
-    route_base = "/xingguang/tags"
+    route_base = "/superset/tags"
     datamodel = SQLAInterface(Tag)
     class_permission_name = "Tags"
+
+
+    method_permission_name = MODEL_VIEW_RW_METHOD_PERMISSION_MAP
 
     @has_access
     @expose("/")
@@ -61,7 +65,7 @@ class TagModelView(SupersetModelView):
 
     @has_access
     @expose("/sys_tag/")
-    def list(self) -> FlaskResponse:
+    def sys_tag_list(self) -> FlaskResponse:
         if not is_feature_enabled("TAGGING_SYSTEM"):
             return super().list()
 

@@ -56,6 +56,7 @@ class DashboardModelView(
         RouteMethod.API_READ,
         RouteMethod.API_DELETE,
         "download_dashboards",
+        "templates_list",
     }
 
     @has_access
@@ -66,7 +67,7 @@ class DashboardModelView(
 
     @has_access
     @expose("/templates/")
-    def list(self) -> FlaskResponse:
+    def templates_list(self) -> FlaskResponse:
         return super().render_app_template()
 
 

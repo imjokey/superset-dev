@@ -101,6 +101,8 @@ MODEL_VIEW_RW_METHOD_PERMISSION_MAP = {
     "delete": "write",
     "download": "read",
     "download_dashboards": "read",
+    "sys_tag_list": "read",
+    "templates_list": "read",
     "edit": "write",
     "list": "read",
     "muldelete": "write",
