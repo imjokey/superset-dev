@@ -119,5 +119,6 @@ export enum FilterOperator {
   ChartHasCreatedBy = 'chart_has_created_by',
   DashboardTags = 'dashboard_tags',
   ChartTags = 'chart_tags',
+  ParentId = 'parent_id',
   SavedQueryTags = 'saved_query_tags',
 }

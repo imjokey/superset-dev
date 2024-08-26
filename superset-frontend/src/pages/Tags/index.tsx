@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { isFeatureEnabled, FeatureFlag, t } from '@superset-ui/core';
 import {
   Actions,
@@ -237,6 +237,15 @@ function TagList(props: TagListProps) {
                   </span>
                 </Tooltip>
               )}
+               <Tooltip id="edit-action-tooltip" title="更多" placement="bottom">
+                <span role="button" tabIndex={0} className="action-button">
+                  <Link
+                    to={`/superset/sys_tag/?filters=(type:(label:${original.name},value:${original.id}))&pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc`}
+                  >
+                    <Icons.Info />
+                  </Link>
+                </span>
+              </Tooltip>
             </Actions>
           );
         },

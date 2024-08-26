@@ -17,7 +17,7 @@
  * under the License.
  */
 import { FeatureFlag, isFeatureEnabled } from '@superset-ui/core';
-import React, { lazy } from 'react';
+import { lazy, ComponentType, ComponentProps } from 'react';
 
 // not lazy loaded since this is the home page.
 import Home from 'src/pages/Home';
@@ -61,6 +61,8 @@ const DashboardList = lazy(
   () =>
     import(/* webpackChunkName: "DashboardList" */ 'src/pages/DashboardList'),
 );
+
+
 
 const Dashboard = lazy(
   () => import(/* webpackChunkName: "Dashboard" */ 'src/pages/Dashboard'),
@@ -128,11 +130,17 @@ const TemplateList = lazy(
     import(/* webpackChunkName: "TemplateList" */ 'src/pages/Template'),
 );
 
+const DashboardTags = lazy(
+  () =>
+    import(/* webpackChunkName: "DashboardTags" */ 'src/pages/DashboardTags'),
+);
+
+
 type Routes = {
   path: string;
-  Component: React.ComponentType;
-  Fallback?: React.ComponentType;
-  props?: React.ComponentProps<any>;
+  Component: ComponentType;
+  Fallback?: ComponentType;
+  props?: ComponentProps<any>;
 }[];
 
 export const routes: Routes = [
@@ -230,9 +238,13 @@ export const routes: Routes = [
     path: '/sqllab/',
     Component: SqlLab,
   },
- {
-    path: '/template/list/',
+  {
+    path: '/dashboard/templates/',
     Component: TemplateList,
+  },
+  {
+    path: '/superset/sys_tag/',
+    Component: DashboardTags,
   },
 ];
 
