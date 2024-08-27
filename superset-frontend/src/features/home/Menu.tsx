@@ -197,7 +197,7 @@ export function Menu({
   const uiConfig = useUiConfig();
   const theme = useTheme();
   useEffect(() => {
-    menu.push({name: 'Template', icon: 'fa-bar-chart', label: '模板库', url: '/template/list/'})
+    menu.push({name: 'Template', icon: 'fa-bar-chart', label: '模板库', url: '/dashboard/templates/'})
   }, [menu]);
   useEffect(() => {
     function handleResize() {
