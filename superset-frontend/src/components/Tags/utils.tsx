@@ -44,7 +44,7 @@ type SelectTagsValue = {
 export const tagToSelectOption = (
   item: Tag & { table_name: string },
 ): SelectTagsValue => ({
-  value: item.name,
+  value: item.id,
   label: item.name,
   key: item.id,
 });
