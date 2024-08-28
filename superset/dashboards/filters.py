@@ -93,7 +93,7 @@ class DashboardTagIdFilter(BaseTagIdFilter):  # pylint: disable=too-few-public-m
     Custom filter for the GET list that filters all dashboards that a user has favored
     """
 
-    arg_name = "dashboard_tags_id"
+    arg_name = "dashboard_tag_id"
     class_name = "Dashboard"
     model = Dashboard
 

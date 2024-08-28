@@ -228,7 +228,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         "dashboard_title": [DashboardTitleOrSlugFilter],
         "id": [DashboardFavoriteFilter, DashboardCertifiedFilter],
         "created_by": [DashboardCreatedByMeFilter, DashboardHasCreatedByFilter],
-        "tags": [DashboardTagFilter],
+        "tags": [DashboardTagFilter, DashboardTagIdFilter],
     }
 
     base_order = ("changed_on", "desc")
