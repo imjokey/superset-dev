@@ -191,6 +191,29 @@ class BaseTagFilter(BaseFilter):  # pylint: disable=too-few-public-methods
         return query.filter(self.model.id.in_(tags_query))
 
 
+class BaseTagIdFilter(BaseFilter):  # pylint: disable=too-few-public-methods
+    """
+    Base Custom filter for the GET list that filters all dashboards, slices
+    that a user has favored or not
+    """
+
+    name = _("Is tagged_id")
+    arg_name = ""
+    class_name = ""
+    """ The Tag class_name to user """
+    model: type[Dashboard | Slice | SqllabQuery | SqlaTable] = Dashboard
+    """ The SQLAlchemy model """
+
+    def apply(self, query: Query, value: Any) -> Query:
+        id_value = int(value)
+        tags_query = (
+            db.session.query(self.model.id)
+            .join(self.model.tags)
+            .filter(Tag.id == id_value)
+        )
+        return query.filter(self.model.id.in_(tags_query))
+
+
 class BaseSupersetApiMixin:
     csrf_exempt = False
 

@@ -169,6 +169,7 @@ class TagSchema(Schema):
     id = fields.Int()
     name = fields.String()
     type = fields.Enum(TagType, by_value=True)
+    parent_id = fields.Int()
 
 
 class DashboardGetResponseSchema(Schema):
@@ -196,7 +197,7 @@ class DashboardGetResponseSchema(Schema):
     tags = fields.Nested(TagSchema, many=True)
     changed_on_humanized = fields.String(data_key="changed_on_delta_humanized")
     is_managed_externally = fields.Boolean(allow_none=True, dump_default=False)
-
+    
     # pylint: disable=unused-argument
     @post_dump()
     def post_dump(self, serialized: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
@@ -204,6 +205,8 @@ class DashboardGetResponseSchema(Schema):
             del serialized["owners"]
             del serialized["changed_by_name"]
             del serialized["changed_by"]
+        serialized["sys_tags"] = []
+        serialized["sys_tags"] = [tag for tag in serialized["tags"]]
         return serialized
 
 

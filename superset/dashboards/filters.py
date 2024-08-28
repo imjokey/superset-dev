@@ -32,7 +32,7 @@ from superset.security.guest_token import GuestTokenResourceType, GuestUser
 from superset.utils.core import get_user_id
 from superset.utils.filters import get_dataset_access_filters
 from superset.views.base import BaseFilter
-from superset.views.base_api import BaseFavoriteFilter, BaseTagFilter
+from superset.views.base_api import BaseFavoriteFilter, BaseTagFilter, BaseTagIdFilter
 
 
 class DashboardTitleOrSlugFilter(BaseFilter):  # pylint: disable=too-few-public-methods
@@ -86,6 +86,17 @@ class DashboardTagFilter(BaseTagFilter):  # pylint: disable=too-few-public-metho
     arg_name = "dashboard_tags"
     class_name = "Dashboard"
     model = Dashboard
+
+
+class DashboardTagIdFilter(BaseTagIdFilter):  # pylint: disable=too-few-public-methods
+    """
+    Custom filter for the GET list that filters all dashboards that a user has favored
+    """
+
+    arg_name = "dashboard_tags_id"
+    class_name = "Dashboard"
+    model = Dashboard
+
 
 
 class DashboardAccessFilter(BaseFilter):  # pylint: disable=too-few-public-methods

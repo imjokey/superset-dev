@@ -60,6 +60,7 @@ from superset.dashboards.filters import (
     DashboardFavoriteFilter,
     DashboardHasCreatedByFilter,
     DashboardTagFilter,
+    DashboardTagIdFilter,
     DashboardTitleOrSlugFilter,
     FilterRelatedRoles,
 )
@@ -185,6 +186,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         "tags.id",
         "tags.name",
         "tags.type",
+        "tags.parent_id",
     ]
 
     list_select_columns = list_columns + ["changed_on", "created_on", "changed_by_fk"]
@@ -330,6 +332,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
               $ref: '#/components/responses/404'
         """
         result = self.dashboard_get_response_schema.dump(dash)
+        logger.debug(result)
         add_extra_log_payload(
             dashboard_id=dash.id, action=f"{self.__class__.__name__}.get"
         )
