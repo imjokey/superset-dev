@@ -24,7 +24,7 @@ import {
   t,
 } from '@superset-ui/core';
 import { useSelector } from 'react-redux';
-import React, { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect  } from 'react';
 import { Link } from 'react-router-dom';
 import rison from 'rison';
 import {
@@ -55,10 +55,10 @@ import FaveStar from 'src/components/FaveStar';
 import PropertiesModal from 'src/dashboard/components/PropertiesModal';
 import { Tooltip } from 'src/components/Tooltip';
 import ImportModelsModal from 'src/components/ImportModal/index';
-
+import { fetchChildTags } from 'src/features/tags/tags';
 import Dashboard from 'src/dashboard/containers/Dashboard';
 import {
-  Dashboard as CRUDDashboard,
+  Dashboard as CRUDDahboard,
   QueryObjectColumns,
 } from 'src/views/CRUD/types';
 import CertifiedBadge from 'src/components/CertifiedBadge';
@@ -68,8 +68,7 @@ import { DashboardStatus } from 'src/features/dashboards/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { ModifiedInfo } from 'src/components/AuditInfo';
-
-import AiModal from './components/AiModal/AiModal';
+import { useQueryParams, QueryParamConfig } from 'use-query-params';
 
 const PAGE_SIZE = 25;
 const PASSWORDS_NEEDED_MESSAGE = t(
@@ -84,6 +83,22 @@ const CONFIRM_OVERWRITE_MESSAGE = t(
     'Overwriting might cause you to lose some of your work. Are you ' +
     'sure you want to overwrite?',
 );
+
+const RisonParam: QueryParamConfig<string, any> = {
+  encode: (data?: any | null) =>
+    data === undefined
+      ? undefined
+      : rison
+          .encode(data)
+          .replace(/%/g, '%25')
+          .replace(/&/g, '%26')
+          .replace(/\+/g, '%2B')
+          .replace(/#/g, '%23'),
+  decode: (dataStr?: string | string[]) =>
+    dataStr === undefined || Array.isArray(dataStr)
+      ? undefined
+      : rison.decode(dataStr),
+};
 
 interface DashboardListProps {
   addDangerToast: (msg: string) => void;
@@ -113,12 +128,36 @@ const Actions = styled.div`
   color: ${({ theme }) => theme.colors.grayscale.base};
 `;
 
+const DASHBOARD_COLUMNS_TO_FETCH = [
+  'id',
+  'dashboard_title',
+  'published',
+  'url',
+  'slug',
+  'changed_by',
+  'changed_on_delta_humanized',
+  'owners.id',
+  'owners.first_name',
+  'owners.last_name',
+  'owners',
+  'tags.id',
+  'tags.name',
+  'tags.type',
+  'status',
+  'certified_by',
+  'certification_details',
+  'changed_on',
+];
+
 function DashboardList(props: DashboardListProps) {
   const { addDangerToast, addSuccessToast, user } = props;
 
   const { roles } = useSelector<any, UserWithPermissionsAndRoles>(
     state => state.user,
   );
+  const [query, setQuery] = useQueryParams({
+    filters: RisonParam,
+  });
   const canReadTag = findPermission('can_read', 'Tag', roles);
 
   const {
@@ -137,6 +176,11 @@ function DashboardList(props: DashboardListProps) {
     'dashboard',
     t('dashboard'),
     addDangerToast,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    DASHBOARD_COLUMNS_TO_FETCH,
   );
   const dashboardIds = useMemo(() => dashboards.map(d => d.id), [dashboards]);
   const [saveFavoriteStatus, favoriteStatus] = useFavoriteStatus(
@@ -153,6 +197,7 @@ function DashboardList(props: DashboardListProps) {
 
   const [importingDashboard, showImportModal] = useState<boolean>(false);
   const [passwordFields, setPasswordFields] = useState<string[]>([]);
+  const [childTag, setChildTag] = useState<any>();
   const [preparingExport, setPreparingExport] = useState<boolean>(false);
   const [sshTunnelPasswordFields, setSSHTunnelPasswordFields] = useState<
     string[]
@@ -192,7 +237,6 @@ function DashboardList(props: DashboardListProps) {
   function openDashboardEditModal(dashboard: Dashboard) {
     setDashboardToEdit(dashboard);
   }
-
   function handleDashboardEdit(edits: Dashboard) {
     return SupersetClient.get({
       endpoint: `/api/v1/dashboard/${edits.id}`,
@@ -359,6 +403,9 @@ function DashboardList(props: DashboardListProps) {
         Header: t('Owners'),
         accessor: 'owners',
         disableSortBy: true,
+        cellProps: {
+          style: { padding: '0px' },
+        },
         size: 'xl',
       },
       {
@@ -641,14 +688,6 @@ function DashboardList(props: DashboardListProps) {
   const subMenuButtons: SubMenuProps['buttons'] = [];
   if (canDelete || canExport) {
     subMenuButtons.push({
-      name: 'AI分析',
-      buttonStyle: 'tertiary',
-      'data-test': 'bulk-select',
-      onClick: () => {
-        setCssTemplateModalOpen(true);
-      },
-    });
-    subMenuButtons.push({
       name: t('Bulk select'),
       buttonStyle: 'secondary',
       'data-test': 'bulk-select',
@@ -682,18 +721,22 @@ function DashboardList(props: DashboardListProps) {
       onClick: openDashboardImportModal,
     });
   }
-  const [cssTemplateModalOpen, setCssTemplateModalOpen] =
-    useState<boolean>(false);
+  useEffect(() => {
+    if (query?.filters?.tags?.value) {
+      fetchChildTags(
+        query?.filters?.tags?.value,
+        child => {
+          setChildTag(child);
+        },
+        () => {},
+      );
+    } else {
+      setChildTag(undefined);
+    }
+  }, [query]);
   return (
     <>
       <SubMenu name={t('Dashboards')} buttons={subMenuButtons} />
-      <AiModal
-        // addDangerToast={addDangerToast}
-        // cssTemplate={currentCssTemplate}
-        // onCssTemplateAdd={() => refreshData()}
-        onHide={() => setCssTemplateModalOpen(false)}
-        show={cssTemplateModalOpen}
-      />
       <ConfirmStatusChange
         title={t('Please confirm')}
         description={t(
@@ -770,6 +813,7 @@ function DashboardList(props: DashboardListProps) {
                 pageSize={PAGE_SIZE}
                 addSuccessToast={addSuccessToast}
                 addDangerToast={addDangerToast}
+                childTag={childTag}
                 showThumbnails={
                   userKey
                     ? userKey.thumbnails

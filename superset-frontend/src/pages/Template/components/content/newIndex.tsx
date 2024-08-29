@@ -45,13 +45,13 @@ const AiModalContent = styled.div`
     }
   }
   .typeBox {
+    height: 40px;
     border-bottom: 1px solid #d9d9d9;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     .sortBox {
       display: flex;
       align-items: center;
-      height: 50px;
       div {
         margin: 0 5px;
         cursor: pointer;
@@ -61,19 +61,7 @@ const AiModalContent = styled.div`
       }
     }
   }
-  .listBox {
-    width: 100%;
-    padding: 0 20px;
-    .titleBox {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 2px solid #45bed6;
-      .title {
-        font-size: 16px;
-      }
-    }
+
     .listStyle {
       .listItem {
         width: 230px;
@@ -273,11 +261,19 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
       updateFilterValue(2, undefined);
     } else {
       setType(v);
-      const { label } = tagOptions.find((item: any) => item.value === Number(v))
-      updateFilterValue( 2, { label,value: label } );
+      const { label, value } = tagOptions.find(
+        (item: any) => item.value === Number(v),
+      );
+      updateFilterValue(2, {
+        label,
+        value,
+      });
     }
   };
-
+  const [maintype, setMaintype] = useState('1');
+  const onMaintypeChange = (e: any) => {
+    setMaintype(e.target.value);
+  };
   const [modaltype, setModaltype] = useState('1');
   const onChanges = (e: any) => {
     setModaltype(e.target.value);
@@ -296,15 +292,19 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
     () => async (inputValue: string, page: number, pageSize: number) => {
       const selectValues = await loadTags(inputValue, page, pageSize);
       setTagOptions(selectValues.data);
-      if (internalFilters) {
+      if (internalFilters.length) {
         setType(internalFilters[2]?.value?.value);
       }
+      //  else {
+      //   setType(selectValues.data[0].value);
+      //   updateFilterValue(2, selectValues.data[0]);
+      // }
     },
     [],
   );
 
   useEffect(() => {
-    fetchAndFormatSelects('', 0, 100);
+    fetchAndFormatSelects('', 0, 4);
   }, []);
 
   return (
@@ -375,7 +375,6 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
         </div>
       </div>
       <div className="typeBox">
-        <div></div>
         <div className="sortBox">
           <div
             className={sort == '1' ? 'active' : ''}
@@ -415,14 +414,7 @@ const NewDashboardContent: FC<NewDashboardContentProps> = props => {
           </div>
         </div>
       </div>
-      <div className="listBox">
-        <div className="titleBox">
-          <div className="title" />
-          <div>总数：{length}</div>
-        </div>
-
-        {children}
-      </div>
+      <div className="listBox">{children}</div>
     </AiModalContent>
   );
 };

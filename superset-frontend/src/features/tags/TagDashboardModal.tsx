@@ -100,13 +100,13 @@ const TagModal: FC<TagModalProps> = ({
     filters: RisonParam,
   });
   const [dashboardsParentTag, setDashboardsParentTag] =
-    useState<TaggableResourceOption>(query.filters?.type.value);
+    useState<TaggableResourceOption>(query.filters?.type?.value);
   const [chartsToTag, setChartsToTag] = useState<TaggableResourceOption[]>([]);
   const [savedQueriesToTag, setSavedQueriesToTag] = useState<
     TaggableResourceOption[]
   >([]);
   useEffect(() => {
-    setDashboardsParentTag(query.filters?.type.value);
+    setDashboardsParentTag(query.filters?.type?.value);
   }, [query]);
   const [tagName, setTagName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -248,7 +248,9 @@ const TagModal: FC<TagModalProps> = ({
     setTagName(ev.target.value);
   const handleDescriptionChange = (ev: ChangeEvent<HTMLInputElement>) =>
     setDescription(ev.target.value);
-
+  useEffect(() => {
+    setDashboardsParentTag(query.filters?.type?.value);
+  }, [query]);
   const onSave = () => {
     const dashboards = dashboardsToTag.map(dash => ['dashboard', dash.value]);
     const charts = chartsToTag.map(chart => ['chart', chart.value]);
@@ -325,7 +327,7 @@ const TagModal: FC<TagModalProps> = ({
         <FormLabel>父标签</FormLabel>
         <Input
           className="tag-input"
-          value={query.filters?.type.label}
+          value={query.filters?.type?.label}
           disabled
         />
         <FormLabel>{t('Tag name')}</FormLabel>

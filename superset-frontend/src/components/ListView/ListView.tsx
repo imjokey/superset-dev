@@ -17,7 +17,7 @@
  * under the License.
  */
 import { t, styled } from '@superset-ui/core';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, ReactNode } from 'react';
 import Alert from 'src/components/Alert';
 import cx from 'classnames';
 import Button from 'src/components/Button';
@@ -107,9 +107,8 @@ const BulkSelectWrapper = styled(Alert)`
     }
 
     .divider {
-      margin: ${`${-theme.gridUnit * 2}px 0 ${-theme.gridUnit * 2}px ${
-        theme.gridUnit * 4
-      }px`};
+      margin: ${`${-theme.gridUnit * 2}px 0 ${-theme.gridUnit * 2}px ${theme.gridUnit * 4
+    }px`};
       width: 1px;
       height: ${theme.gridUnit * 8}px;
       box-shadow: inset -1px 0px 0px ${theme.colors.grayscale.light2};
@@ -176,11 +175,11 @@ const ViewModeToggle = ({
   mode,
   setMode,
 }: {
-  mode: 'table' | 'card';
-  setMode: (mode: 'table' | 'card') => void;
+  mode: 'table' | 'card' | 'page';
+  setMode: (mode: 'table' | 'card' | 'page') => void;
 }) => (
   <ViewModeContainer>
-    {location.pathname === '/dashboard/list/' &&<div
+    {location.pathname === '/dashboard/list/' && <div
       role="button"
       tabIndex={0}
       onClick={e => {
@@ -231,14 +230,14 @@ export interface ListViewProps<T extends object = any> {
   filters?: Filters;
   bulkActions?: Array<{
     key: string;
-    name: React.ReactNode;
+    name: ReactNode;
     onSelect: (rows: any[]) => any;
     type?: 'primary' | 'secondary' | 'danger';
   }>;
   bulkSelectEnabled?: boolean;
   disableBulkSelect?: () => void;
-  renderBulkSelectCopy?: (selects: any[]) => React.ReactNode;
-  renderCard?: (row: T & { loading: boolean }) => React.ReactNode;
+  renderBulkSelectCopy?: (selects: any[]) => ReactNode;
+  renderCard?: (row: T & { loading: boolean }) => ReactNode;
   cardSortSelectOptions?: Array<CardSortSelectOption>;
   defaultViewMode?: ViewModeType;
   highlightRowId?: number;
@@ -247,6 +246,7 @@ export interface ListViewProps<T extends object = any> {
   columnsForWrapText?: string[];
   enableBulkTag?: boolean;
   bulkTagResourceName?: string;
+  childTag?: any;
 }
 
 function ListView<T extends object = any>({
@@ -262,7 +262,7 @@ function ListView<T extends object = any>({
   filters = [],
   bulkActions = [],
   bulkSelectEnabled = false,
-  disableBulkSelect = () => {},
+  disableBulkSelect = () => { },
   renderBulkSelectCopy = selected => t('%s Selected', selected.length),
   renderCard,
   showThumbnails,
@@ -275,6 +275,7 @@ function ListView<T extends object = any>({
   bulkTagResourceName,
   addSuccessToast,
   addDangerToast,
+  childTag,
 }: ListViewProps<T>) {
   const {
     getTableProps,
@@ -474,6 +475,7 @@ function ListView<T extends object = any>({
                   rows={rows}
                   loading={loading}
                   showThumbnails={showThumbnails}
+                  childTag={childTag}
                 />
               </NewDashboardContent>
             </div>

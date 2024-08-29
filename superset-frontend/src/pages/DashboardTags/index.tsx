@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from 'react';
 import { useMemo, useState } from 'react';
 import { isFeatureEnabled, FeatureFlag, t } from '@superset-ui/core';
 import {
@@ -144,26 +143,6 @@ function TagList(props: TagListProps) {
     ),
   };
   
-  const onCollapse = (id: number): void => {
-    fetchChildTags(
-      id,
-      (children: any) => {
-        setResourceCollection(
-          tags.map(item => {
-            if (item.id === id) {
-              return {
-                ...item,
-                children,
-              };
-            }
-            return item;
-          }),
-        );
-      },
-
-      () => {},
-    );
-  };
   const columns = useMemo(
     () => [
       {

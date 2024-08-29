@@ -117,7 +117,7 @@ export enum FilterOperator {
   DatasetIsCertified = 'dataset_is_certified',
   DashboardHasCreatedBy = 'dashboard_has_created_by',
   ChartHasCreatedBy = 'chart_has_created_by',
-  DashboardTags = 'dashboard_tags',
+  DashboardTags = 'dashboard_tag_id',
   ChartTags = 'chart_tags',
   ParentId = 'parent_id',
   SavedQueryTags = 'saved_query_tags',
