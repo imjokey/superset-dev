@@ -146,7 +146,38 @@ export function deleteTags(
       return err_str ? error(err_str) : error('Error Deleting Tag');
     });
 }
-
+export function fetchChildTags(
+  tagsId: number,
+  callback: (tags: any) => void,
+  error: (response: string) => void,
+) {
+  const queryParams = rison.encode_uri({
+    order_column: 'changed_on_delta_humanized',
+    order_direction: 'desc',
+    page: 0,
+    page_size: 100,
+    filters: [
+      {
+        col: 'type',
+        opr: 'sys_tag',
+        value: true,
+      },
+      {
+        col: 'type',
+        opr: 'parent_id',
+        value: tagsId,
+      },
+    ],
+  });
+  SupersetClient.get({
+    endpoint: `/api/v1/tag/?q=${queryParams}`,
+  })
+    .then(({ json }) => callback(json.result))
+    .catch(response => {
+      const err_str = response.message;
+      return err_str ? error(err_str) : error('Error Deleting Tag');
+    });
+}
 export function addTag(
   {
     objectType,
