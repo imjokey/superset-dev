@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import React from 'react';
 import { ReactNode, MouseEvent as ReactMouseEvent } from 'react';
 import { TableInstance, Row } from 'react-table';
 import { styled } from '@superset-ui/core';

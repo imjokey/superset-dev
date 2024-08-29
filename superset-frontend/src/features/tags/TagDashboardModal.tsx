@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import React from 'react';
 import { ChangeEvent, useState, useEffect, FC, useMemo } from 'react';
 
 import rison from 'rison';
