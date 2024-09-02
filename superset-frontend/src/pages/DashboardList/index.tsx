@@ -70,6 +70,7 @@ import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import { findPermission } from 'src/utils/findPermission';
 import { ModifiedInfo } from 'src/components/AuditInfo';
 import { useQueryParams, QueryParamConfig } from 'use-query-params';
+import AiModal from './components/AiModal/AiModal';
 
 const PAGE_SIZE = 25;
 const PASSWORDS_NEEDED_MESSAGE = t(
@@ -195,6 +196,8 @@ function DashboardList(props: DashboardListProps) {
   );
   const [dashboardToDelete, setDashboardToDelete] =
     useState<CRUDDashboard | null>(null);
+    const [cssTemplateModalOpen, setCssTemplateModalOpen] =
+    useState<boolean>(false);
 
   const [importingDashboard, showImportModal] = useState<boolean>(false);
   const [passwordFields, setPasswordFields] = useState<string[]>([]);
@@ -689,6 +692,14 @@ function DashboardList(props: DashboardListProps) {
   const subMenuButtons: SubMenuProps['buttons'] = [];
   if (canDelete || canExport) {
     subMenuButtons.push({
+      name: 'AI分析',
+      buttonStyle: 'tertiary',
+      'data-test': 'bulk-select',
+      onClick: () => {
+        setCssTemplateModalOpen(true);
+      },
+    });
+    subMenuButtons.push({
       name: t('Bulk select'),
       buttonStyle: 'secondary',
       'data-test': 'bulk-select',
@@ -738,6 +749,13 @@ function DashboardList(props: DashboardListProps) {
   return (
     <>
       <SubMenu name={t('Dashboards')} buttons={subMenuButtons} />
+      <AiModal
+        // addDangerToast={addDangerToast}
+        // cssTemplate={currentCssTemplate}
+        // onCssTemplateAdd={() => refreshData()}
+        onHide={() => setCssTemplateModalOpen(false)}
+        show={cssTemplateModalOpen}
+      />
       <ConfirmStatusChange
         title={t('Please confirm')}
         description={t(
