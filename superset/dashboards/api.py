@@ -17,13 +17,14 @@
 # pylint: disable=too-many-lines
 import functools
 import json
+import os, contextlib
 import logging
 from datetime import datetime
 from io import BytesIO
 from typing import Any, Callable, cast, Optional
 from zipfile import is_zipfile, ZipFile
 
-from flask import redirect, request, Response, send_file, url_for
+from flask import redirect, request, Response, send_file, url_for, current_app
 from flask_appbuilder import permission_name
 from flask_appbuilder.api import expose, protect, rison, safe
 from flask_appbuilder.hooks import before_request
@@ -147,6 +148,8 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         "delete_embedded",
         "thumbnail",
         "copy_dash",
+        "upload_static_images",
+        "get_static_images"
     }
     resource_name = "dashboard"
     allow_browser_login = True
@@ -1366,3 +1369,52 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                 ).timestamp(),
             },
         )
+
+
+
+    @expose("/upload_static_images", methods=("POST",))
+    @protect()
+    @permission_name("write")
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}.upload_static_images",
+        log_to_statsd=False,
+    )
+    @requires_form_data
+    def upload_static_images(self) -> Response:
+        # Check if a file was uploaded
+        if 'file' not in request.files:
+            return self.response(500, result={'error': 'No file uploaded'})
+
+        file = request.files['file']
+
+        # Check if the file is empty
+        if file.filename == '':
+            return self.response(500, result={'error': 'Empty file name'})
+        if not os.path.exists(os.path.join(current_app.static_folder, "wallpapers")):
+          with contextlib.suppress(OSError):
+              os.makedirs(os.path.join(current_app.static_folder, "wallpapers"))
+        # Save the file to the upload directory
+        file.save(os.path.join(current_app.static_folder, "wallpapers", file.filename))
+        return self.response(200, result={'message': 'File uploaded successfully', 'image_url': f"{os.path.join('static', 'wallpapers', file.filename)}"})
+
+
+    @expose("/get_static_images", methods=("GET",))
+    @protect()
+    @safe
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}.get_static_images",
+        log_to_statsd=False,
+    )
+    def get_static_images(self, **kwargs: Any) -> Response:
+        # Get a list of files in the upload directory
+        if not os.path.exists(os.path.join(current_app.static_folder, "wallpapers")):
+          with contextlib.suppress(OSError):
+              os.makedirs(os.path.join(current_app.static_folder, "wallpapers"))
+   
+        files = os.listdir(os.path.join(current_app.static_folder, 'wallpapers'))
+        
+        return self.response(200, result={'files': [ f"{os.path.join('static', 'wallpapers', i)}" for i in files]})
+
+

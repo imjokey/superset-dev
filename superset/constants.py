@@ -160,6 +160,8 @@ MODEL_API_RW_METHOD_PERMISSION_MAP = {
     "delete_object": "write",
     "copy_dash": "write",
     "get_connection": "write",
+    "upload_static_images": "write",
+    "get_static_images": "read",
 }
 
 EXTRA_FORM_DATA_APPEND_KEYS = {
@@ -229,4 +231,5 @@ class CacheRegion(StrEnum):
     DEFAULT = "default"
     DATA = "data"
     THUMBNAIL = "thumbnail"
+
 
