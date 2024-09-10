@@ -22,10 +22,13 @@ import { PureComponent } from 'react';
 // eslint-disable-next-line import/no-unresolved
 import Tabs from 'src/components/Tabs';
 import ColorPicker from 'src/components/ColorPicker';
-import { t, css, SupersetTheme } from '@superset-ui/core';
+import { t, css } from '@superset-ui/core';
 import SliceAdder from 'src/dashboard/containers/SliceAdder';
 // eslint-disable-next-line import/no-unresolved
 import dashboardComponents from 'src/visualizations/presets/dashboardComponents';
+import { getImg } from 'src/components/Upload/utils';
+import Upload from 'src/components/Upload';
+import injectCustomCss from 'src/dashboard/util/injectCustomCss';
 import NewColumn from '../gridComponents/new/NewColumn';
 import NewDivider from '../gridComponents/new/NewDivider';
 import NewHeader from '../gridComponents/new/NewHeader';
@@ -33,32 +36,60 @@ import NewRow from '../gridComponents/new/NewRow';
 import NewTabs from '../gridComponents/new/NewTabs';
 import NewMarkdown from '../gridComponents/new/NewMarkdown';
 import NewDynamicComponent from '../gridComponents/new/NewDynamicComponent';
-// import injectCustomCss from 'src/dashboard/util/injectCustomCss';
 
 const BUILDER_PANE_WIDTH = 374;
 
+// eslint-disable-next-line react-prefer-function-component/react-prefer-function-component
 class BuilderComponentPane extends PureComponent {
   constructor(props) {
     super(props);
-    this.changeCss = this.changeCss.bind(this);
+    this.state = {
+      colorList: ['#f7f7f7', 'red', 'green', 'yellow'],
+      imgList: [
+        'https://img0.baidu.com/it/u=2138148539,1764238981&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500',
+        'https://img0.baidu.com/it/u=3543009939,2144310597&fm=253&fmt=auto&app=138&f=JPEG?w=704&h=500',
+      ],
+    };
   }
 
   changeCss(css) {
-    // console.log(this.props);
     this.props.onChange();
-    this.props.updateCss(`body { background: ${css.toRgbString()}; }`);
+    this.props.updateCss(`.css-position { background: ${css}; }`);
   }
 
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   if (this.props.customCss !== nextProps.customCss) {
-  //     this.setState({ css: nextProps.customCss }, () => {
-  //       injectCustomCss(nextProps.customCss);
-  //     });
-  //   }
-  // }
+  changeAntdCss(css) {
+    this.props.onChange();
+    this.props.updateCss(`.css-position { background: ${css.toRgbString()}; }`);
+  }
+
+  changeBgCss(css) {
+    this.props.onChange();
+    this.props
+      .updateCss(`.css-position {           background-image: url(${css});
+                      background-size: cover;
+                      background-position: center;
+                      background-repeat: no-repeat; }`);
+  }
+
+  async handleInit() {
+    const res = await getImg();
+    this.setState({ imgList: res });
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    if (this.props.customCss !== nextProps.customCss) {
+      this.setState({ css: nextProps.customCss }, () => {
+        injectCustomCss(nextProps.customCss);
+      });
+    }
+  }
+
+  componentDidMount() {
+    this.handleInit();
+  }
 
   render() {
-    const { updateCss, customCss, topOffset = 0 } = this.props;
+    const { customCss, topOffset = 0 } = this.props;
 
     console.log(customCss);
 
@@ -114,7 +145,92 @@ class BuilderComponentPane extends PureComponent {
               <NewHeader />
               <NewMarkdown />
               <NewDivider />
-              <ColorPicker onChange={this.changeCss} format={'rgb'} />
+              <ul
+                css={css`
+                  display: flex;
+                  align-items: flex-start;
+                  flex-wrap: wrap;
+                  list-style: none;
+                  margin: 0;
+                  padding: 16px;
+                `}
+              >
+                {this.state.colorList.map(color => (
+                  // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+                  <li
+                    onClick={this.changeCss.bind(this, color)}
+                    key={color}
+                    css={css`
+                      width: 32px;
+                      height: 32px;
+                      border: 4px solid ${'#F7F7F7'};
+                      background-color: ${color};
+                      margin-right: 16px;
+                      cursor: pointer;
+                      box-sizing: content-box;
+                    `}
+                  />
+                ))}
+                <ColorPicker
+                  style={{ width: '40px', height: '40px' }}
+                  onChange={this.changeAntdCss.bind(this)}
+                  format={'rgb'}
+                />
+              </ul>
+              <ul
+                css={css`
+                  display: flex;
+                  align-items: flex-start;
+                  flex-wrap: wrap;
+                  list-style: none;
+                  margin: 0;
+                  padding: 16px;
+                `}
+              >
+                {this.state.imgList.map(img => (
+                  // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+                  <li
+                    onClick={this.changeBgCss.bind(this, `${window.location.origin + '/' + img}`)}
+                    key={img}
+                    css={css`
+                      width: calc(50% - 16px);
+                      height: 50px;
+                      border: 4px solid ${'#F7F7F7'};
+                      background-image: url(${window.location.origin + '/' + img});
+                      background-size: cover;
+                      background-position: center;
+                      background-repeat: no-repeat;
+                      margin-right: 16px;
+                      margin-bottom: 10px;
+                      cursor: pointer;
+                      box-sizing: content-box;
+                      :nth-child(2n) {
+                        margin-right: 0;
+                      }
+                    `}
+                  />
+                ))}
+              </ul>
+              <Upload
+                action="/api/v1/dashboard/upload_static_images"
+                onChange={this.handleInit.bind(this)}
+              >
+                <div
+                  css={css`
+                    width: 333px;
+                    height: 50px;
+                    border: 4px solid ${'#F7F7F7'};
+                    margin-left: 16px;
+                    cursor: pointer;
+                    box-sizing: content-box;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  `}
+                >
+                  上传
+                </div>
+              </Upload>
               {dashboardComponents
                 .getAll()
                 .map(({ key: componentKey, metadata }) => (
