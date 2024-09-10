@@ -149,7 +149,8 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         "thumbnail",
         "copy_dash",
         "upload_static_images",
-        "get_static_images"
+        "get_static_images",
+        "delete_static_images"
     }
     resource_name = "dashboard"
     allow_browser_login = True
@@ -1399,6 +1400,34 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         return self.response(200, result={'message': 'File uploaded successfully', 'image_url': f"{os.path.join('static', 'wallpapers', file.filename)}"})
 
 
+
+    @expose("/delete_static_images", methods=("DELETE",))
+    @protect()
+    @safe
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}.delete_static_images",
+        log_to_statsd=False,
+    )
+    @requires_json
+    def delete_static_images(self) -> Response:
+        try:
+            del_files = request.json['del_list']
+            for file_name in del_files:
+                if os.path.exists(os.path.join(current_app.static_folder, "wallpapers", file_name)):
+                    os.remove(os.path.join(current_app.static_folder, "wallpapers", file_name))
+            return self.response(200, message="OK")
+        except Exception as ex:
+            logger.error(
+                "Error deleting wallpaper %s: %s",
+                self.__class__.__name__,
+                str(ex),
+                exc_info=True,
+            )
+            return self.response_422(message=str(ex))
+
+
+
     @expose("/get_static_images", methods=("GET",))
     @protect()
     @safe
@@ -1416,5 +1445,6 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         files = os.listdir(os.path.join(current_app.static_folder, 'wallpapers'))
         
         return self.response(200, result={'files': [ f"{os.path.join('static', 'wallpapers', i)}" for i in files]})
+
 
 
