@@ -139,12 +139,17 @@ class BuilderComponentPane extends PureComponent {
               <SliceAdder />
             </Tabs.TabPane>
             <Tabs.TabPane key={2} tab={t('Layout elements')}>
-              <NewTabs />
-              <NewRow />
-              <NewColumn />
-              <NewHeader />
-              <NewMarkdown />
-              <NewDivider />
+              <div css={css`
+                  display: flex;
+                  flex-wrap: wrap;
+                `}>
+                <div css={css`width: 50%`}><NewTabs /></div>
+                <div css={css`width: 50%`}><NewRow /></div>
+                <div css={css`width: 50%`}><NewColumn /></div>
+                <div css={css`width: 50%`}><NewHeader /></div>
+                <div css={css`width: 50%`}><NewMarkdown /></div>
+                <div css={css`width: 50%`}><NewDivider /></div>
+              </div>
               <ul
                 css={css`
                   display: flex;
@@ -163,7 +168,6 @@ class BuilderComponentPane extends PureComponent {
                     css={css`
                       width: 32px;
                       height: 32px;
-                      border: 4px solid ${'#F7F7F7'};
                       background-color: ${color};
                       margin-right: 16px;
                       cursor: pointer;
@@ -172,7 +176,6 @@ class BuilderComponentPane extends PureComponent {
                   />
                 ))}
                 <ColorPicker
-                  style={{ width: '40px', height: '40px' }}
                   onChange={this.changeAntdCss.bind(this)}
                   format={'rgb'}
                 />
@@ -185,6 +188,8 @@ class BuilderComponentPane extends PureComponent {
                   list-style: none;
                   margin: 0;
                   padding: 16px;
+                  height: 400px;
+                  overflow-y: auto
                 `}
               >
                 {this.state.imgList.map(img => (

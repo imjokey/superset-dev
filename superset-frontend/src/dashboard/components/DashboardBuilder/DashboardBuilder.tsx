@@ -169,7 +169,7 @@ const DashboardContentWrapper = styled.div`
       }
 
       .background--white {
-        background-color: ${theme.colors.grayscale.light5};
+        background-color: ${'transparent'};
       }
     }
     &.dashboard--editing {
