@@ -27,6 +27,7 @@ import Tag from 'src/types/TagType';
 
 import rison from 'rison';
 import { cacheWrapper } from 'src/utils/cacheWrapper';
+import { content } from 'googleapis/build/src/apis/content';
 
 const localCache = new Map<string, any>();
 
@@ -51,7 +52,6 @@ export const tagToSelectOption = (
 });
 
 export const getImg = async () => {
-  const searchColumn = 'name';
   const getErrorMessage = ({ error, message }: ClientErrorObject) => {
     let errorText = message || error || t('An error has occurred');
     if (message === 'Forbidden') {
@@ -64,6 +64,33 @@ export const getImg = async () => {
     endpoint: `/api/v1/dashboard/get_static_images`,
   })
     .then(response => response.json?.result?.files || [])
+    .catch(async error => {
+      const errorMessage = getErrorMessage(await getClientErrorObject(error));
+      throw new Error(errorMessage);
+    });
+};
+
+
+export const deleteImg = async (name: string) => {
+  const getErrorMessage = ({ error, message }: ClientErrorObject) => {
+    let errorText = message || error || t('An error has occurred');
+    if (message === 'Forbidden') {
+      errorText = t('You do not have permission to read tags');
+    }
+    return errorText;
+  };
+
+  return SupersetClient.delete({
+    endpoint: `/api/v1/dashboard/delete_static_images`,
+    // jsonPayload: {
+    //   del_list: [name],
+    // },
+    body: JSON.stringify({
+      del_list: [name],
+    }),
+    headers: { 'Content-Type': 'application/json' },
+  })
+    .then(response => response)
     .catch(async error => {
       const errorMessage = getErrorMessage(await getClientErrorObject(error));
       throw new Error(errorMessage);

@@ -26,7 +26,7 @@ import { t, css } from '@superset-ui/core';
 import SliceAdder from 'src/dashboard/containers/SliceAdder';
 // eslint-disable-next-line import/no-unresolved
 import dashboardComponents from 'src/visualizations/presets/dashboardComponents';
-import { getImg } from 'src/components/Upload/utils';
+import { getImg, deleteImg } from 'src/components/Upload/utils';
 import Upload from 'src/components/Upload';
 import injectCustomCss from 'src/dashboard/util/injectCustomCss';
 import NewColumn from '../gridComponents/new/NewColumn';
@@ -36,6 +36,7 @@ import NewRow from '../gridComponents/new/NewRow';
 import NewTabs from '../gridComponents/new/NewTabs';
 import NewMarkdown from '../gridComponents/new/NewMarkdown';
 import NewDynamicComponent from '../gridComponents/new/NewDynamicComponent';
+import { CloseOutlined } from '@ant-design/icons';
 
 const BUILDER_PANE_WIDTH = 374;
 
@@ -45,11 +46,9 @@ class BuilderComponentPane extends PureComponent {
     super(props);
     this.state = {
       colorList: ['#f7f7f7', 'red', 'green', 'yellow'],
-      imgList: [
-        'https://img0.baidu.com/it/u=2138148539,1764238981&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500',
-        'https://img0.baidu.com/it/u=3543009939,2144310597&fm=253&fmt=auto&app=138&f=JPEG?w=704&h=500',
-      ],
+      imgList: [],
     };
+    this.handleChartDelete = this.handleChartDelete.bind(this);
   }
 
   changeCss(css) {
@@ -74,6 +73,14 @@ class BuilderComponentPane extends PureComponent {
   async handleInit() {
     const res = await getImg();
     this.setState({ imgList: res });
+  }
+
+  async handleChartDelete(e, name) {
+    e.stopPropagation();
+    const res = await deleteImg(name);
+    if (res) {
+      this.handleInit();
+    }
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -172,8 +179,11 @@ class BuilderComponentPane extends PureComponent {
                       margin-right: 16px;
                       cursor: pointer;
                       box-sizing: content-box;
+                      position: relative;
                     `}
-                  />
+                    >
+                    <div></div>
+                  </li>
                 ))}
                 <ColorPicker
                   onChange={this.changeAntdCss.bind(this)}
@@ -195,13 +205,18 @@ class BuilderComponentPane extends PureComponent {
                 {this.state.imgList.map(img => (
                   // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
                   <li
-                    onClick={this.changeBgCss.bind(this, `${window.location.origin + '/' + img}`)}
+                    onClick={this.changeBgCss.bind(
+                      this,
+                      `${window.location.origin + '/' + img}`,
+                    )}
                     key={img}
                     css={css`
                       width: calc(50% - 16px);
                       height: 50px;
                       border: 4px solid ${'#F7F7F7'};
-                      background-image: url(${window.location.origin + '/' + img});
+                      background-image: url(${window.location.origin +
+                      '/' +
+                      img});
                       background-size: cover;
                       background-position: center;
                       background-repeat: no-repeat;
@@ -209,11 +224,28 @@ class BuilderComponentPane extends PureComponent {
                       margin-bottom: 10px;
                       cursor: pointer;
                       box-sizing: content-box;
+                      position: relative;
                       :nth-child(2n) {
                         margin-right: 0;
                       }
                     `}
-                  />
+                    >
+                    <div
+                      css={css`
+                        cursor: pointer;
+                        position: absolute;
+                        color: ${'#fff'};
+                        right: 0;
+                        top: 0;
+                        padding: 2px 4px;
+                        background-color: ${'#ff4d4f'};
+                        cursor: pointer;
+                      `}
+                      onClick={e => this.handleChartDelete(e, img)}
+                    >
+                      <CloseOutlined role="button" />
+                    </div>
+                  </li>
                 ))}
               </ul>
               <Upload
