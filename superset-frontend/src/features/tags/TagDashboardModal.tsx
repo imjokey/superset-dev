@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from 'react';
 import { ChangeEvent, useState, useEffect, FC, useMemo } from 'react';
 
 import rison from 'rison';
@@ -30,12 +29,7 @@ import Button from 'src/components/Button';
 import { Tag } from 'src/views/CRUD/types';
 import { fetchObjectsByTagIds } from 'src/features/tags/tags';
 import { loadTags } from 'src/components/Tags/utils';
-import {
-  NumberParam,
-  StringParam,
-  useQueryParams,
-  QueryParamConfig,
-} from 'use-query-params';
+import { useQueryParams, QueryParamConfig } from 'use-query-params';
 
 const StyledModalBody = styled.div`
   .ant-select-dropdown {
@@ -106,9 +100,7 @@ const TagModal: FC<TagModalProps> = ({
   const [savedQueriesToTag, setSavedQueriesToTag] = useState<
     TaggableResourceOption[]
   >([]);
-  useEffect(() => {
-    setDashboardsParentTag(query.filters?.type?.value);
-  }, [query]);
+
   const [tagName, setTagName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
 
@@ -249,9 +241,11 @@ const TagModal: FC<TagModalProps> = ({
     setTagName(ev.target.value);
   const handleDescriptionChange = (ev: ChangeEvent<HTMLInputElement>) =>
     setDescription(ev.target.value);
+
   useEffect(() => {
     setDashboardsParentTag(query.filters?.type?.value);
   }, [query]);
+
   const onSave = () => {
     const dashboards = dashboardsToTag.map(dash => ['dashboard', dash.value]);
     const charts = chartsToTag.map(chart => ['chart', chart.value]);

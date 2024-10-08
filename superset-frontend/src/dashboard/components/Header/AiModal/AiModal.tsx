@@ -42,6 +42,7 @@ interface CssTemplateModalProps {
   onCssTemplateAdd?: (cssTemplate?: TemplateObject) => void;
   onHide: () => void;
   show: boolean;
+  id?: string;
 }
 
 const StyledCssTemplateTitle = styled.div`
@@ -140,14 +141,20 @@ const AiModalContent = styled.div`
           display: flex;
           align-items: center;
           height: 30px;
-          .checkIcon {
-            font-size: 24px;
-            color: #20a7c9;
-            cursor: pointer;
-            margin-right: 10px;
+          border-bottom: 1px solid #e3e3e3;
+          &:last-child {
+            border-bottom: none;
           }
+          &:hover {
+            color: #20a7c9;
+          }
+          cursor: pointer;
           .tableTitle {
             font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 80%;
           }
         }
         .checkScroll {
@@ -213,8 +220,12 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
   onHide,
   show,
   cssTemplate = null,
+  id,
 }) => {
   const [disableSave, setDisableSave] = useState<boolean>(true);
+  const [chartList, setChartList] = useState([]);
+  const [chartId, setChartId] = useState(0);
+  const [dash, setDash] = useState('');
   const [currentCssTemplate, setCurrentCssTemplate] =
     useState<TemplateObject | null>(null);
   const [isHidden, setIsHidden] = useState<boolean>(true);
@@ -386,16 +397,22 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
       message.error('请输入内容');
       return false;
     }
-    let arr = list;
+    const arr = list;
     arr.push({ type: 'right', value: searchValue });
     setList([...arr]);
     setSearchValue('');
-    let data = {
+    const data = {
       prompt: searchValue,
-      temperature: 0.9,
+      history: arr
+        .filter((item: any) => item.type === 'right')
+        .map((item: any) => ({ role: 'user', content: item.value })),
+      temperature: 1.0,
+      max_tokens: 2048,
+      top_p: 0.95,
+      table: 'table',
     };
     setProgressStatus(true);
-    fetch('https://hit-mitlab.cn:7860/generate_index', {
+    fetch('https://hit-mitlab.cn:7860/generate_analyse', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -410,13 +427,8 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
         }
       })
       .then(function (data) {
-        // aiPost(data)
-        let arr = data.map((i: any) => {
-          return { title: i, checkStatus: false };
-        });
-        setCheckList([...arr]);
         let newArr = list;
-        newArr.push({ type: 'list' });
+        newArr.push({ type: 'left', value: data.text });
         setList([...newArr]);
         setProgressStatus(false);
       })
@@ -449,7 +461,7 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
         stop: ['\nObservation:', '\nObservation :'],
       };
       setProgressStatus(true);
-      fetch('https://hit-mitlab.cn:7860/generate_table2', {
+      fetch('https://hit-mitlab.cn:7860/generate_analyse', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -552,6 +564,55 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
       });
   };
 
+  const aiPostComment = () => {
+    fetch(`https://data.jokeyshirely.com/api/app/dash_info/?dash_id=${id}`, {
+      method: 'GET',
+    })
+      .then(function (res) {
+        if (res.status === 200) {
+          return res.json();
+        }
+        return Promise.reject(res.json());
+      })
+      .then(function (data) {
+        setDash(data.dash.dash_sum);
+        setChartList(data.charts);
+      })
+      .catch(function (err) {
+        console.log(err);
+        setProgressStatus(false);
+      });
+  };
+
+  const aiPostChart = () => {
+    fetch('https://data.jokeyshirely.com/api/app/gen_dash_reports/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        dash_id: id,
+        extra: list
+        .filter((item: any) => item.type === 'right')
+        .map((item: any) => ({ role: 'user', content: item.value })),
+      }),
+    })
+      .then(res => res.blob())
+      .then(function (blob) {
+        const url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = "AI自动分析报告.doc";
+        a.click();
+        a.remove(); 
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(function (err) {
+        console.log(err);
+        setProgressStatus(false);
+      });
+  };
+
   const toDetails = (i: any) => {
     window.open(i, '_block');
   };
@@ -571,6 +632,11 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
     setCheckList([...arr]);
   };
 
+  useEffect(() => {
+    aiPostComment();
+    // aiPostChart();
+  }, []);
+
   return (
     <Modal
       disablePrimaryButton={disableSave}
@@ -582,202 +648,146 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
       width="55%"
       title={<h4 data-test="css-template-modal-title">AI分析</h4>}
     >
-      {/* <StyledCssTemplateTitle>
-        <h4>{t('Basic information')}</h4>
-      </StyledCssTemplateTitle> */}
       <AiModalContent>
         <div className="chatContent" ref={divRef}>
           <div className="tipBox">
-            <div className="el-upload__tip">
-              当前数据模型，包括以下维度和度量：
+            <div className="el-upload__tip">内容总结：</div>
+            <div className="el-upload__tip">{dash}</div>
+          </div>
+          <div className="checkBox">
+            <div className="title">
+              选择分析图表：
             </div>
-            <div className="el-upload__tip">维度：</div>
-            <div className="el-upload__tip">
-              1. 销售表， 包括: 销售姓名, 销售分部等信息
-            </div>
-            <div className="el-upload__tip">
-              2. 合同表， 包括: 合同名称, 行业名称, 商机类型, 合同类型等信息
-            </div>
-            <div className="el-upload__tip">
-              3. 合同明细表， 包括: 商机来源, 是否在保, 是否新客等信息
-            </div>
-            <div className="el-upload__tip">
-              4. 合同签订日期_时间维度， 包括: 年, 年季, 年月, 年周,
-              年月日等信息
-            </div>
-            <div className="el-upload__tip">
-              5. 地理维， 包括: 省份, 城市等信息
-            </div>
-            <div className="el-upload__tip">度量：</div>
-            <div className="el-upload__tip">
-              1. 合同明细表， 包括: 商机预算, 售前成本, 回款金额, 外采费用,
-              产品模块标价等信息
-            </div>
-            <div className="el-upload__tip">
-              2. 其他， 包括: 利润, 项目成本等信息
-            </div>
-            <div className="el-upload__tip">示例问句：</div>
-            <div
-              className="el-upload__tip tipBoxQusetion"
-              onClick={() => {
-                setSearchValue('2017年第一季度的流动资产合计用柱状图表示');
-              }}
-            >
-              2017年第一季度的流动资产合计用柱状图表示
-            </div>
-            <div
-              className="el-upload__tip tipBoxQusetion"
-              onClick={() => {
-                setSearchValue('2018年第二季度的商誉用折线图表示');
-              }}
-            >
-              2018年第二季度的商誉用折线图表示
-            </div>
-            <div
-              className="el-upload__tip tipBoxQusetion"
-              onClick={() => {
-                setSearchValue('2018年6月的货币资金是多少');
-              }}
-            >
-              2018年6月的货币资金是多少
+            <div className="tableBox">
+              <div className="checkScroll">
+                {chartList.map((i: any, index: any) => (
+                  <div
+                    className="tableItem"
+                    key={index}
+                    onClick={() => setChartId(i.chart_id)}
+                  >
+                    <div className="tableTitle">{i.chart_data.opts.title}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          {list.map((i: any, index: any) => {
-            return (
-              <div key={index}>
-                {i.type == 'left' && (
-                  <div className="content left">
-                    <div className="chat leftChat">
-                      已经生成图表大屏,
-                      <span
-                        onClick={() => {
-                          toDetails(i.url);
-                        }}
-                      >
-                        请点击查看
-                      </span>
+          {list.map((i: any, index: any) => (
+            <div key={index}>
+              {i.type == 'left' && (
+                <div className="content left">
+                  <div className="chat leftChat">
+                    {i.value}
+                  </div>
+                </div>
+              )}
+              {i.type == 'right' && (
+                <div className="content right">
+                  <div className="chat rightChat">{i.value}</div>
+                </div>
+              )}
+              {i.type == 'list' && (
+                <div className="checkBox">
+                  <div className="title">
+                    这些指标可能跟您的问题有关，可以作为分析组件组装故事版：
+                  </div>
+                  <div className="tableBox">
+                    <div className="tableItem line">
+                      {checkAllStatus ? (
+                        <Icons.CheckboxOn
+                          className="checkIcon"
+                          iconSize="xl"
+                          onClick={() => {
+                            checkAll(false);
+                          }}
+                        />
+                      ) : (
+                        <Icons.CheckboxOff
+                          className="checkIcon"
+                          iconSize="xl"
+                          onClick={() => {
+                            checkAll(true);
+                          }}
+                        />
+                      )}
+                      <div className="tableTitle">推荐指标</div>
+                    </div>
+                    <div className="checkScroll">
+                      {checkList.map((i: any, index: any) => (
+                        <div className="tableItem" key={index}>
+                          {i.checkStatus ? (
+                            <Icons.CheckboxOn
+                              className="checkIcon"
+                              iconSize="xl"
+                              onClick={() => {
+                                isCheck(false, index);
+                              }}
+                            />
+                          ) : (
+                            <Icons.CheckboxOff
+                              className="checkIcon"
+                              iconSize="xl"
+                              onClick={() => {
+                                isCheck(true, index);
+                              }}
+                            />
+                          )}
+                          <div>{i.title}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                )}
-                {i.type == 'right' && (
-                  <div className="content right">
-                    <div className="chat rightChat">{i.value}</div>
+                  <div className="footer">
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={() => {
+                        submitList();
+                      }}
+                    >
+                      确定
+                    </button>
                   </div>
-                )}
-                {i.type == 'list' && (
-                  <div className="checkBox">
-                    <div className="title">
-                      这些指标可能跟您的问题有关，可以作为分析组件组装故事版：
-                    </div>
-                    <div className="tableBox">
-                      <div className="tableItem line">
-                        {checkAllStatus ? (
-                          <Icons.CheckboxOn
-                            className="checkIcon"
-                            iconSize="xl"
-                            onClick={() => {
-                              checkAll(false);
-                            }}
-                          />
-                        ) : (
-                          <Icons.CheckboxOff
-                            className="checkIcon"
-                            iconSize="xl"
-                            onClick={() => {
-                              checkAll(true);
-                            }}
-                          />
-                        )}
-                        <div className="tableTitle">推荐指标</div>
-                      </div>
-                      <div className="checkScroll">
-                        {checkList.map((i: any, index: any) => {
-                          return (
-                            <div className="tableItem" key={index}>
-                              {i.checkStatus ? (
-                                <Icons.CheckboxOn
-                                  className="checkIcon"
-                                  iconSize="xl"
-                                  onClick={() => {
-                                    isCheck(false, index);
-                                  }}
-                                />
-                              ) : (
-                                <Icons.CheckboxOff
-                                  className="checkIcon"
-                                  iconSize="xl"
-                                  onClick={() => {
-                                    isCheck(true, index);
-                                  }}
-                                />
-                              )}
-                              <div>{i.title}</div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <div className="footer">
-                      <button
-                        type="button"
-                        className="btn btn-primary btn-sm"
-                        onClick={() => {
-                          submitList();
-                        }}
-                      >
-                        确定
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
+                </div>
+              )}
+            </div>
+          ))}
           {progressStatus && <div className="progress"></div>}
         </div>
       </AiModalContent>
-      <InputBox>
-        <input
-          type="text"
-          value={searchValue}
-          onChange={e => {
-            setSearchValue(e.target.value);
-          }}
-        />
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => {
-            getList();
-          }}
-        >
-          发送
-        </button>
-      </InputBox>
-      {/* <TemplateContainer>
-        <div className="control-label">
-          {t('Name')}
-          <span className="required">*</span>
+      {!!chartId && (
+        <div>
+          <div style={{marginBottom: '10px'}}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => {
+              aiPostChart();
+            }}
+          >
+            生成报表
+          </button>
+          </div>
+          <InputBox>
+            <input
+              type="text"
+              value={searchValue}
+              onChange={e => {
+                setSearchValue(e.target.value);
+              }}
+            />
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                getList();
+              }}
+            >
+              发送
+            </button>
+          </InputBox>
         </div>
-        <input
-          name="template_name"
-          onChange={onTemplateNameChange}
-          type="text"
-          value={currentCssTemplate?.template_name}
-        />
-      </TemplateContainer>
-      <TemplateContainer>
-        <div className="control-label">
-          {t('css')}
-          <span className="required">*</span>
-        </div>
-        <StyledCssEditor
-          onChange={onCssChange}
-          value={currentCssTemplate?.css}
-          width="100%"
-        />
-      </TemplateContainer> */}
+      )}
     </Modal>
   );
 };
