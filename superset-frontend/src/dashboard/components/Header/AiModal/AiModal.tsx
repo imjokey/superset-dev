@@ -409,7 +409,9 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
       temperature: 1.0,
       max_tokens: 2048,
       top_p: 0.95,
-      table: 'table',
+      table: (
+        chartList.filter((item: any) => item.chart_id === chartId)[0] as any
+      ).chart_data,
     };
     setProgressStatus(true);
     fetch('https://hit-mitlab.cn:7860/generate_analyse', {
@@ -593,8 +595,8 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
       body: JSON.stringify({
         dash_id: id,
         extra: list
-        .filter((item: any) => item.type === 'right')
-        .map((item: any) => ({ role: 'user', content: item.value })),
+          .filter((item: any) => item.type === 'right')
+          .map((item: any) => ({ role: 'user', content: item.value })),
       }),
     })
       .then(res => res.blob())
@@ -602,9 +604,9 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
         const url = URL.createObjectURL(blob);
         let a = document.createElement('a');
         a.href = url;
-        a.download = "AI自动分析报告.doc";
+        a.download = 'AI自动分析报告.doc';
         a.click();
-        a.remove(); 
+        a.remove();
         window.URL.revokeObjectURL(url);
       })
       .catch(function (err) {
@@ -654,31 +656,32 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
             <div className="el-upload__tip">内容总结：</div>
             <div className="el-upload__tip">{dash}</div>
           </div>
-          <div className="checkBox">
-            <div className="title">
-              选择分析图表：
-            </div>
-            <div className="tableBox">
-              <div className="checkScroll">
-                {chartList.map((i: any, index: any) => (
-                  <div
-                    className="tableItem"
-                    key={index}
-                    onClick={() => setChartId(i.chart_id)}
-                  >
-                    <div className="tableTitle">{i.chart_data.opts.title}</div>
-                  </div>
-                ))}
+          {!chartId && (
+            <div className="checkBox">
+              <div className="title">选择分析图表：</div>
+              <div className="tableBox">
+                <div className="checkScroll">
+                  {chartList.map((i: any, index: any) => (
+                    <div
+                      className="tableItem"
+                      key={index}
+                      onClick={() => setChartId(i.chart_id)}
+                    >
+                      <div className="tableTitle">
+                        {i.chart_data.opts.title}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
           {list.map((i: any, index: any) => (
             <div key={index}>
               {i.type == 'left' && (
                 <div className="content left">
-                  <div className="chat leftChat">
-                    {i.value}
-                  </div>
+                  <div className="chat leftChat">{i.value}</div>
                 </div>
               )}
               {i.type == 'right' && (
@@ -757,16 +760,16 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
       </AiModalContent>
       {!!chartId && (
         <div>
-          <div style={{marginBottom: '10px'}}>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              aiPostChart();
-            }}
-          >
-            生成报表
-          </button>
+          <div style={{ marginBottom: '10px' }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                aiPostChart();
+              }}
+            >
+              生成报表
+            </button>
           </div>
           <InputBox>
             <input
