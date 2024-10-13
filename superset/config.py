@@ -666,16 +666,16 @@ THUMBNAIL_CACHE_CONFIG: CacheConfig = {
 
 # Time before selenium times out after trying to locate an element on the page and wait
 # for that element to load for a screenshot.
-SCREENSHOT_LOCATE_WAIT = int(timedelta(seconds=500).total_seconds())
+SCREENSHOT_LOCATE_WAIT = int(timedelta(seconds=20).total_seconds())
 # Time before selenium times out after waiting for all DOM class elements named
 # "loading" are gone.
-SCREENSHOT_LOAD_WAIT = int(timedelta(minutes=100).total_seconds())
+SCREENSHOT_LOAD_WAIT = int(timedelta(minutes=2).total_seconds())
 # Selenium destroy retries
 SCREENSHOT_SELENIUM_RETRIES = 5
 # Give selenium an headstart, in seconds
-SCREENSHOT_SELENIUM_HEADSTART = 30
+SCREENSHOT_SELENIUM_HEADSTART = 3
 # Wait for the chart animation, in seconds
-SCREENSHOT_SELENIUM_ANIMATION_WAIT = 50
+SCREENSHOT_SELENIUM_ANIMATION_WAIT = 6
 # Replace unexpected errors in screenshots with real error messages
 SCREENSHOT_REPLACE_UNEXPECTED_ERRORS = False
 # Max time to wait for error message modal to show up, in seconds
