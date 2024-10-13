@@ -666,7 +666,7 @@ THUMBNAIL_CACHE_CONFIG: CacheConfig = {
 
 # Time before selenium times out after trying to locate an element on the page and wait
 # for that element to load for a screenshot.
-SCREENSHOT_LOCATE_WAIT = int(timedelta(seconds=10).total_seconds())
+SCREENSHOT_LOCATE_WAIT = int(timedelta(seconds=250).total_seconds())
 # Time before selenium times out after waiting for all DOM class elements named
 # "loading" are gone.
 SCREENSHOT_LOAD_WAIT = int(timedelta(minutes=1).total_seconds())
@@ -970,11 +970,12 @@ CELERY_BEAT_SCHEDULER_EXPIRES = timedelta(weeks=1)
 
 class CeleryConfig:  # pylint: disable=too-few-public-methods
     broker_url = "redis://redis:6379/0"
-    imports = ("superset.sql_lab", "superset.tasks.scheduler", "superset.tasks.thumbnails")
+    # imports = ("superset.sql_lab", "superset.tasks.scheduler", "superset.tasks.thumbnails")
+    imports = ("superset.sql_lab", "superset.tasks.thumbnails")
     result_backend = "redis://redis:6379/0"
-    worker_prefetch_multiplier = 1
-    concurrency = 1
-    task_acks_late = False
+    # worker_prefetch_multiplier = 5
+    # concurrency = 1
+    task_acks_late = True
     task_annotations = {
         "sql_lab.get_sql_results": {
             "rate_limit": "100/s",
@@ -1411,7 +1412,7 @@ WEBDRIVER_CONFIGURATION: dict[Any, Any] = {"service_log_path": "/dev/null"}
 WEBDRIVER_OPTION_ARGS = ["--headless"]
 
 # The base URL to query for accessing the user interface
-WEBDRIVER_BASEURL = "http://0.0.0.0:8080/"
+WEBDRIVER_BASEURL = "http://superset-node:8088/"
 # The base URL for the email report hyperlinks.
 WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 # Time selenium will wait for the page to load and render for the email report.
