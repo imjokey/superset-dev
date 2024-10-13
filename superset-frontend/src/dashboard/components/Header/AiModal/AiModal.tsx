@@ -246,6 +246,8 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
   // Functions
   const hide = () => {
     setIsHidden(true);
+    setChartId(0);
+    setList([])
     onHide();
   };
 
@@ -648,7 +650,7 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
       show={show}
       hideFooter={true}
       width="55%"
-      title={<h4 data-test="css-template-modal-title">AI分析</h4>}
+      title={<h4 data-test="css-template-modal-title">AI决策</h4>}
     >
       <AiModalContent>
         <div className="chatContent" ref={divRef}>

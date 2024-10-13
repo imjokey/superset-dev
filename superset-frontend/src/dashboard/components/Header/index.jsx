@@ -666,6 +666,7 @@ class Header extends PureComponent {
                 <div css={actionButtonsStyle}>
                   {NavExtension && <NavExtension />}
                   {this.state.isShowAiButton && (
+                    <>
                     <Button
                       css={discardBtnStyle}
                       buttonSize="small"
@@ -674,8 +675,49 @@ class Header extends PureComponent {
                       data-test="discard-changes-button"
                       aria-label={t('Discard')}
                     >
-                      AI 推理
+                      AI 审计
                     </Button>
+                    <Button
+                      css={discardBtnStyle}
+                      buttonSize="small"
+                      onClick={() => this.setCssTemplateModalOpen(true)}
+                      buttonStyle="default"
+                      data-test="discard-changes-button"
+                      aria-label={t('Discard')}
+                    >
+                      AI 风控
+                    </Button>
+                    <Button
+                      css={discardBtnStyle}
+                      buttonSize="small"
+                      onClick={() => this.setCssTemplateModalOpen(true)}
+                      buttonStyle="default"
+                      data-test="discard-changes-button"
+                      aria-label={t('Discard')}
+                    >
+                      AI 合规
+                    </Button>
+                    <Button
+                      css={discardBtnStyle}
+                      buttonSize="small"
+                      onClick={() => this.setCssTemplateModalOpen(true)}
+                      buttonStyle="default"
+                      data-test="discard-changes-button"
+                      aria-label={t('Discard')}
+                    >
+                      AI 财务
+                    </Button>
+                    <Button
+                      css={discardBtnStyle}
+                      buttonSize="small"
+                      onClick={() => this.setCssTemplateModalOpen(true)}
+                      buttonStyle="default"
+                      data-test="discard-changes-button"
+                      aria-label={t('Discard')}
+                    >
+                      AI 决策
+                    </Button>
+                    </>
                   )}
 
                   {userCanEdit && (

@@ -693,7 +693,7 @@ function DashboardList(props: DashboardListProps) {
   if (canDelete || canExport) {
     subMenuButtons.push({
       name: 'AI分析',
-      buttonStyle: 'tertiary',
+      buttonStyle: 'secondary',
       'data-test': 'bulk-select',
       onClick: () => {
         setCssTemplateModalOpen(true);

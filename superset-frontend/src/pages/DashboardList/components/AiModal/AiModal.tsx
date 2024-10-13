@@ -370,7 +370,7 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
     let isType = false;
     for (let i = 0; i < list.length; i++) {
       if (list[i].type === 'list') {
-        isType = true;
+        isType = false;
         break;
       }
     }
@@ -588,34 +588,6 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
       <AiModalContent>
         <div className="chatContent" ref={divRef}>
           <div className="tipBox">
-            <div className="el-upload__tip">
-              当前数据模型，包括以下维度和度量：
-            </div>
-            <div className="el-upload__tip">维度：</div>
-            <div className="el-upload__tip">
-              1. 销售表， 包括: 销售姓名, 销售分部等信息
-            </div>
-            <div className="el-upload__tip">
-              2. 合同表， 包括: 合同名称, 行业名称, 商机类型, 合同类型等信息
-            </div>
-            <div className="el-upload__tip">
-              3. 合同明细表， 包括: 商机来源, 是否在保, 是否新客等信息
-            </div>
-            <div className="el-upload__tip">
-              4. 合同签订日期_时间维度， 包括: 年, 年季, 年月, 年周,
-              年月日等信息
-            </div>
-            <div className="el-upload__tip">
-              5. 地理维， 包括: 省份, 城市等信息
-            </div>
-            <div className="el-upload__tip">度量：</div>
-            <div className="el-upload__tip">
-              1. 合同明细表， 包括: 商机预算, 售前成本, 回款金额, 外采费用,
-              产品模块标价等信息
-            </div>
-            <div className="el-upload__tip">
-              2. 其他， 包括: 利润, 项目成本等信息
-            </div>
             <div className="el-upload__tip">示例问句：</div>
             <div
               className="el-upload__tip tipBoxQusetion"
@@ -632,14 +604,6 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
               }}
             >
               2018年第二季度的商誉用折线图表示
-            </div>
-            <div
-              className="el-upload__tip tipBoxQusetion"
-              onClick={() => {
-                setSearchValue('2018年6月的货币资金是多少');
-              }}
-            >
-              2018年6月的货币资金是多少
             </div>
           </div>
           {list.map((i: any, index: any) => {
