@@ -502,6 +502,7 @@ if (isDevMode) {
     port: devserverPort,
     // Only serves bundled files from webpack-dev-server
     // and proxy everything else to Superset backend
+    allowedHosts: ["all"],
     proxy: [
       // functions are called for every request
       () => proxyConfig,

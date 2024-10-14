@@ -484,7 +484,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # Set to True to replace Selenium with Playwright to execute reports and thumbnails.
     # Unlike Selenium, Playwright reports support deck.gl visualizations
     # Enabling this feature flag requires installing "playwright" pip package
-    "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": False,
+    "PLAYWRIGHT_REPORTS_AND_THUMBNAILS": True,
     # Set to True to enable experimental chart plugins
     "CHART_PLUGINS_EXPERIMENTAL": False,
 }
@@ -666,10 +666,10 @@ THUMBNAIL_CACHE_CONFIG: CacheConfig = {
 
 # Time before selenium times out after trying to locate an element on the page and wait
 # for that element to load for a screenshot.
-SCREENSHOT_LOCATE_WAIT = int(timedelta(seconds=250).total_seconds())
+SCREENSHOT_LOCATE_WAIT = int(timedelta(seconds=30).total_seconds())
 # Time before selenium times out after waiting for all DOM class elements named
 # "loading" are gone.
-SCREENSHOT_LOAD_WAIT = int(timedelta(minutes=1).total_seconds())
+SCREENSHOT_LOAD_WAIT = int(timedelta(minutes=2).total_seconds())
 # Selenium destroy retries
 SCREENSHOT_SELENIUM_RETRIES = 5
 # Give selenium an headstart, in seconds
@@ -688,7 +688,7 @@ SCREENSHOT_WAIT_FOR_ERROR_MODAL_INVISIBLE = 5
 SCREENSHOT_PLAYWRIGHT_WAIT_EVENT = "load"
 # Default timeout for Playwright browser context for all operations
 SCREENSHOT_PLAYWRIGHT_DEFAULT_TIMEOUT = int(
-    timedelta(seconds=30).total_seconds() * 1000
+    timedelta(seconds=100).total_seconds() * 1000
 )
 
 # ---------------------------------------------------
@@ -972,9 +972,9 @@ class CeleryConfig:  # pylint: disable=too-few-public-methods
     broker_url = "redis://redis:6379/0"
     # imports = ("superset.sql_lab", "superset.tasks.scheduler", "superset.tasks.thumbnails")
     imports = ("superset.sql_lab", "superset.tasks.thumbnails")
-    result_backend = "redis://redis:6379/0"
-    # worker_prefetch_multiplier = 5
-    # concurrency = 1
+    result_backend = "redis://redis:6379/1"
+    worker_prefetch_multiplier = 2
+    oncurrency = 1
     task_acks_late = True
     task_annotations = {
         "sql_lab.get_sql_results": {
@@ -982,11 +982,11 @@ class CeleryConfig:  # pylint: disable=too-few-public-methods
         },
     }
     beat_schedule = {
-        "reports.scheduler": {
-            "task": "reports.scheduler",
-            "schedule": crontab(minute="*", hour="*"),
-            "options": {"expires": int(CELERY_BEAT_SCHEDULER_EXPIRES.total_seconds())},
-        },
+        # "reports.scheduler": {
+        #     "task": "reports.scheduler",
+        #     "schedule": crontab(minute="*", hour="*"),
+        #     "options": {"expires": int(CELERY_BEAT_SCHEDULER_EXPIRES.total_seconds())},
+        # },
         "reports.prune_log": {
             "task": "reports.prune_log",
             "schedule": crontab(minute=0, hour=0),
@@ -1412,7 +1412,7 @@ WEBDRIVER_CONFIGURATION: dict[Any, Any] = {"service_log_path": "/dev/null"}
 WEBDRIVER_OPTION_ARGS = ["--headless"]
 
 # The base URL to query for accessing the user interface
-WEBDRIVER_BASEURL = "http://superset-node:8088/"
+WEBDRIVER_BASEURL = "http://superset:8088/"
 # The base URL for the email report hyperlinks.
 WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 # Time selenium will wait for the page to load and render for the email report.
@@ -1695,8 +1695,8 @@ ENVIRONMENT_TAG_CONFIG = {
             "text": "flask-debug",
         },
         "development": {
-            "color": "error.base",
-            "text": "Development",
+            "color": "",
+            "text": "",
         },
         "production": {
             "color": "",
