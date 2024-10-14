@@ -106,8 +106,8 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME"]
     # Bump memory limit if processing selenium / thumbnails on superset-worker
-    # mem_limit: 2038m
-    # mem_reservation: 128M
+    mem_limit: 3096m
+    mem_reservation: 128M
 
   superset-worker-beat:
     image: *superset-image
