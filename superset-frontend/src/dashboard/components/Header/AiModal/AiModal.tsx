@@ -23,6 +23,7 @@ import {
   ChangeEvent,
   useRef,
 } from 'react';
+import React from 'react';
 import { message } from 'antd';
 
 import { styled, t } from '@superset-ui/core';
