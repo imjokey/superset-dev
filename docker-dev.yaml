@@ -49,7 +49,7 @@ services:
       - db_home:/var/lib/postgresql/data
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
 
-  superset:
+  superset-app:
     env_file: docker/.env
     image: *superset-image
     container_name: superset_dev_app
@@ -78,7 +78,7 @@ services:
     healthcheck:
       disable: true
 
-  superset-node:
+  superset:
     image: node:18
     container_name: superset_dev_node
     command: ["/app/docker/docker-front-dev.sh"]
