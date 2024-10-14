@@ -17,6 +17,7 @@
  * under the License.
  */
 /* eslint-env browser */
+import React from 'react';
 import moment from 'moment';
 import { PureComponent } from 'react';
 import PropTypes from 'prop-types';
