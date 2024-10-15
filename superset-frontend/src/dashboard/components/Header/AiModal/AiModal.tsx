@@ -659,9 +659,12 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
             <div className="el-upload__tip">内容总结：</div>
             <div className="el-upload__tip">{dash}</div>
           </div>
-          {!chartId && (
             <div className="checkBox">
-              <div className="title">选择分析图表：</div>
+              <div className="title">选择分析图表：{
+              (
+                chartList.filter((item: any) => item.chart_id === chartId)[0] as any
+              )?.chart_data?.opts.sub_title
+            }</div>
               <div className="tableBox">
                 <div className="checkScroll">
                   {chartList.map((i: any, index: any) => (
@@ -671,14 +674,13 @@ const CssTemplateModal: FunctionComponent<CssTemplateModalProps> = ({
                       onClick={() => setChartId(i.chart_id)}
                     >
                       <div className="tableTitle">
-                        {i.chart_data.opts.title}
+                        {i.chart_data.opts.sub_title}
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-          )}
 
           {list.map((i: any, index: any) => (
             <div key={index}>
