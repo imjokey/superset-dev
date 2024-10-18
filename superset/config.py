@@ -659,7 +659,7 @@ THUMBNAIL_CHART_DIGEST_FUNC: Callable[[Slice, ExecutorType, str], str] | None = 
 
 THUMBNAIL_CACHE_CONFIG: CacheConfig = {
     'CACHE_TYPE': 'RedisCache',
-    'CACHE_DEFAULT_TIMEOUT': 86400,
+    'CACHE_DEFAULT_TIMEOUT': 0,
     'CACHE_KEY_PREFIX': 'thumbnail_cache_',
     'CACHE_REDIS_URL': 'redis://redis:6379/0'
 }
@@ -688,7 +688,7 @@ SCREENSHOT_WAIT_FOR_ERROR_MODAL_INVISIBLE = 5
 SCREENSHOT_PLAYWRIGHT_WAIT_EVENT = "load"
 # Default timeout for Playwright browser context for all operations
 SCREENSHOT_PLAYWRIGHT_DEFAULT_TIMEOUT = int(
-    timedelta(seconds=500).total_seconds() * 1000
+    timedelta(seconds=300).total_seconds() * 1000
 )
 
 # ---------------------------------------------------
