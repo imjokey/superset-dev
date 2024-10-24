@@ -422,7 +422,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     "PRESTO_EXPAND_DATA": False,
     # Exposes API endpoint to compute thumbnails
     "THUMBNAILS": True,
-    "THUMBNAILS_SQLA_LISTENERS": True,
+    "THUMBNAILS_SQLA_LISTENERS": False,
     "SHARE_QUERIES_VIA_KV_STORE": False,
     "TAGGING_SYSTEM": True,
     "SQLLAB_BACKEND_PERSISTENCE": True,
@@ -434,7 +434,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     "GLOBAL_ASYNC_QUERIES": False,
     "EMBEDDED_SUPERSET": False,
     # Enables Alerts and reports new implementation
-    "ALERT_REPORTS": True,
+    "ALERT_REPORTS": False,
     "DASHBOARD_RBAC": False,
     "ENABLE_ADVANCED_DATA_TYPES": False,
     # Enabling ALERTS_ATTACH_REPORTS, the system sends email and slack message
@@ -443,7 +443,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # for report with type 'alert' and sends email and slack message with only link;
     # for report with type 'report' still send with email and slack message with
     # screenshot and link
-    "ALERTS_ATTACH_REPORTS": True,
+    "ALERTS_ATTACH_REPORTS": False,
     # Allow users to export full CSV of table viz type.
     # This could cause the server to run out of memory or compute.
     "ALLOW_FULL_CSV_EXPORT": True,
@@ -666,29 +666,29 @@ THUMBNAIL_CACHE_CONFIG: CacheConfig = {
 
 # Time before selenium times out after trying to locate an element on the page and wait
 # for that element to load for a screenshot.
-SCREENSHOT_LOCATE_WAIT = int(timedelta(seconds=30).total_seconds())
+SCREENSHOT_LOCATE_WAIT = int(timedelta(seconds=10).total_seconds())
 # Time before selenium times out after waiting for all DOM class elements named
 # "loading" are gone.
-SCREENSHOT_LOAD_WAIT = int(timedelta(minutes=2).total_seconds())
+SCREENSHOT_LOAD_WAIT = int(timedelta(minutes=1).total_seconds())
 # Selenium destroy retries
-SCREENSHOT_SELENIUM_RETRIES = 5
+SCREENSHOT_SELENIUM_RETRIES = 2
 # Give selenium an headstart, in seconds
-SCREENSHOT_SELENIUM_HEADSTART = 3
+SCREENSHOT_SELENIUM_HEADSTART = 0
 # Wait for the chart animation, in seconds
-SCREENSHOT_SELENIUM_ANIMATION_WAIT = 5
+SCREENSHOT_SELENIUM_ANIMATION_WAIT = 0
 # Replace unexpected errors in screenshots with real error messages
 SCREENSHOT_REPLACE_UNEXPECTED_ERRORS = False
 # Max time to wait for error message modal to show up, in seconds
-SCREENSHOT_WAIT_FOR_ERROR_MODAL_VISIBLE = 5
+SCREENSHOT_WAIT_FOR_ERROR_MODAL_VISIBLE = 1
 # Max time to wait for error message modal to close, in seconds
-SCREENSHOT_WAIT_FOR_ERROR_MODAL_INVISIBLE = 5
+SCREENSHOT_WAIT_FOR_ERROR_MODAL_INVISIBLE = 1
 # Event that Playwright waits for when loading a new page
 # Possible values: "load", "commit", "domcontentloaded", "networkidle"
 # Docs: https://playwright.dev/python/docs/api/class-page#page-goto-option-wait-until
-SCREENSHOT_PLAYWRIGHT_WAIT_EVENT = "load"
+SCREENSHOT_PLAYWRIGHT_WAIT_EVENT = "networkidle"
 # Default timeout for Playwright browser context for all operations
 SCREENSHOT_PLAYWRIGHT_DEFAULT_TIMEOUT = int(
-    timedelta(seconds=300).total_seconds() * 1000
+    timedelta(seconds=30).total_seconds() * 1000
 )
 
 # ---------------------------------------------------
@@ -971,10 +971,10 @@ CELERY_BEAT_SCHEDULER_EXPIRES = timedelta(weeks=1)
 class CeleryConfig:  # pylint: disable=too-few-public-methods
     broker_url = "redis://redis:6379/0"
     # imports = ("superset.sql_lab", "superset.tasks.scheduler", "superset.tasks.thumbnails")
-    imports = ("superset.sql_lab", "superset.tasks.thumbnails")
+    imports = ("superset.tasks.cache", "superset.sql_lab", "superset.tasks.thumbnails")
     result_backend = "redis://redis:6379/1"
-    worker_prefetch_multiplier = 2
-    oncurrency = 1
+    # worker_prefetch_multiplier = 2
+    # oncurrency = 1
     task_acks_late = True
     task_annotations = {
         "sql_lab.get_sql_results": {

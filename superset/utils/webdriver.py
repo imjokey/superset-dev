@@ -179,7 +179,7 @@ class WebDriverPlaywright(WebDriverProxy):
                         "Wait for the presence of %s at url: %s", element_name, url
                     )
                     element = page.locator(f".{element_name}")
-                    element.wait_for()
+                    element.wait_for(state='attached')
                 except PlaywrightTimeout as ex:
                     logger.exception("Timed out requesting url %s", url)
                     raise ex
@@ -188,9 +188,9 @@ class WebDriverPlaywright(WebDriverProxy):
                     # chart containers didn't render
                     logger.debug("Wait for chart containers to draw at url: %s", url)
                     slice_container_locator = page.locator(".chart-container")
-                    slice_container_locator.first.wait_for()
+                    slice_container_locator.first.wait_for(state='attached')
                     for slice_container_elem in slice_container_locator.all():
-                        slice_container_elem.wait_for()
+                        slice_container_elem.wait_for(state='attached')
                 except PlaywrightTimeout as ex:
                     logger.exception(
                         "Timed out waiting for chart containers to draw at url %s",
